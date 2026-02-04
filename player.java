@@ -12,9 +12,6 @@ public class player {
         
     }
 
-    static void move(newLocation, Location) {
-        
-    }
 
 
 }
