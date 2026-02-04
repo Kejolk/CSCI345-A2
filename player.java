@@ -12,7 +12,6 @@ public class Player {
     Role currentRole;
     int rehearsalChips;
     boolean hasMoved; 
-    CastingOffice castingOffice;
 
     public static void main(String[] args) {
 
