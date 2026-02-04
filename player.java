@@ -1,3 +1,7 @@
+// Defines the Player class
+// Created by Arvind Ramesh
+// Implement fully by Wednesday night
+
 
 public class Player {
     String name;
@@ -8,9 +12,65 @@ public class Player {
     Role currentRole;
     int rehearsalChips;
     boolean hasMoved; 
+    CastingOffice castingOffice;
 
     public static void main(String[] args) {
+
+
         
+    }
+
+
+    // Methods
+    /**
+     * 
+     */
+    public static void move(Location newLocation) {
+
+    }
+
+    /**
+     * 
+     */
+    public static boolean takeRole(Role role) {
+        boolean temp = false;
+
+        return temp;
+
+    }
+
+    /**
+     * 
+     */
+    public static boolean act() {
+        boolean temp = false;
+
+        return temp;
+
+    }
+
+    /**
+     * 
+     */
+    public static void rehearse() {
+
+    }
+
+    /**
+     * 
+     */
+    public static boolean upgradeRank() {
+        boolean temp = false;
+
+        return temp;
+
+    }
+
+    /**
+     * 
+     */
+    public static void resetNewDay() {
+
     }
 
 
