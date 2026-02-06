@@ -19,7 +19,7 @@ public class Role {
      * 
      * @return
      */
-    public static boolean assignPlayer(player player) {
+    public static boolean assignPlayer(Player player) {
         boolean temp = false;
 
         return temp;

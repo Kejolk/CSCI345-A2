@@ -3,7 +3,7 @@
 // Implement fully by Wednesday night
 
 
-public class player {
+public class Player {
     String name;
     int rank;
     int money;
