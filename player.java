@@ -25,9 +25,26 @@ public class Player {
 
     }
 
+
+
+
+
     public static void main(String[] args) {
         // Define Player processes
+        // Create test locations 
+        Location start = new Location("Start");
+        Location town = new Location("Town");
+
+        // Link locations 
+        start.addAdjacentLocation(town);
+
+        Player test = new Player("Arvind", 1, 25, 10, start, null, 0, false);
+
+        town.addAdjacentLocation(start);
+
         // Player Moves
+        test.move(town);
+
         // Player chooses to either take role, act, or rehearse
         // Player can rank upgrade if requirements are met
 
@@ -40,56 +57,122 @@ public class Player {
     /**
      * Moves player between locations
      */
-    public static void move(Location newLocation) {
+    public void move(Location newLocation) {
         // Should be called with a specific player in mind
         // Changes that players location state to the new inserted state
+
+        if (hasMoved) {
+            System.out.println(name + " already moved this turn.");
+            return;
+            
+        }
         
 
-        
+        if (currentRole != null) {
+            currentRole.removePlayer();
+            currentRole = null;
+        }
+
+        if (location == null) {
+            return;
+        }
+
+
+        if (location.getAdjacentLocations().contains(newLocation)) {
+            location = newLocation;
+            hasMoved = true;
+            System.out.println(name + " moved to " + newLocation.name);
+        } else {
+            System.out.println("Invalid move.");
+        }
 
     }
 
     /**
      * Takes role 
      */
-    public static boolean takeRole(Role role) {
-        boolean temp = false;
+    public boolean takeRole(Role role) {
+        if (currentRole != null) {
+            return false;
+        }
 
-        return temp;
+        if (rank < role.recquiredRank) {
+            return false;
+        }
+
+        if (!role.isAvailable()) {
+            return false;
+        }
+
+        role.assignPlayer(this);
+        currentRole = role;
+
+        return true;
 
     }
 
     /**
      * Performs role for Player, given the Player has a role
      */
-    public static boolean act() {
-        boolean temp = false;
+    public boolean act() {
+        if (currentRole == null) {
+            return false;
+        }
 
-        return temp;
+        int diceRoll = (int)(Math.random() * 6) + 1;
 
+        if (diceRoll + rehearsalChips >= currentRole.recquiredRank) {
+            credits += 2;                                                       // CHECK HOW MANY CREDITS YOU NEED
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * Rehearses role
      */
-    public static void rehearse() {
+    public void rehearse() {
+        if (currentRole == null) {
+            return;
+        }
+
+        rehearsalChips++;
 
     }
 
     /**
      * Requests a rank upgrade
      */
-    public static boolean upgradeRank() {
-        boolean temp = false;
+    public boolean upgradeRank(int newRank, int cost, boolean useCredits) {
+        if (newRank <= rank) {
+            return false;
+        }
 
-        return temp;
+        if (useCredits && credits >= cost) {
+            credits -= cost;
+            rank = newRank;
+            return true;
+        }
+
+        if (!useCredits && money >= cost) {
+            money -= cost;
+            rank = newRank;
+            return true;
+
+        }
+
+        return false;
 
     }
 
     /**
      * Resets the day cycle 
      */
-    public static void resetNewDay() {
+    public void resetNewDay() {
+        currentRole = null;
+        rehearsalChips = 0;
+        hasMoved = false;
 
     }
 

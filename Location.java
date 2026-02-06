@@ -3,6 +3,7 @@
 // Implement Skeleton
 
 // Imports
+import java.util.ArrayList;
 import java.util.List;
 
 // Main class
@@ -12,9 +13,7 @@ public class Location {
     
     public Location(String name) {
         this.name = name;
-    }
-    public static void main(String[] args) {
-        System.out.println("Hello world!");
+        adjacentLocations = new ArrayList<>();
     }
 
     // Methods
@@ -23,9 +22,8 @@ public class Location {
      * 
      * @return
      */
-    public static List<Location> getAdjacentLocations() {
-        List<Location> temp = null;
-        return temp;
+    public List<Location> getAdjacentLocations() {
+        return adjacentLocations;
 
     }
 
@@ -33,7 +31,8 @@ public class Location {
      * 
      * @param location
      */
-    public static void addAdjacentLocation(Location location) {
+    public void addAdjacentLocation(Location location) {
+        adjacentLocations.add(location);
 
     }
 

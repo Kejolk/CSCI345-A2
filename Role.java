@@ -8,28 +8,27 @@ public class Role {
     Player occupiedBy;
     boolean onCard;
 
-    public static void main(String[] args) {
-        System.out.println("Hello World!");
-    }
-
-
     // Methods
-
     /**
      * 
      * @return
      */
-    public static boolean assignPlayer(Player player) {
-        boolean temp = false;
+    public boolean assignPlayer(Player player) {
+        if (occupiedBy == null) {
+            occupiedBy = player;
+            return true;
 
-        return temp;
+        }
+        return false;
+
 
     }
 
     /**
      * 
      */
-    public static void removePlayer() {
+    public void removePlayer() {
+        occupiedBy = null;
 
     }
 
@@ -37,10 +36,8 @@ public class Role {
      * 
      * @return
      */
-    public static boolean isAvailable() {
-        boolean temp = false;
-
-        return temp;
+    public boolean isAvailable() {
+        return occupiedBy == null;
         
     }
 
