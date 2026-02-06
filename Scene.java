@@ -1,3 +1,5 @@
+// Created by Sukhman Lally
+
 public class Scene {
     private String title;
     private int budget;

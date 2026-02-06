@@ -13,7 +13,24 @@ public class Player {
     int rehearsalChips;
     boolean hasMoved; 
 
+    public Player(String name, int rank, int money, int credits, Location location, Role currentRole, int rehearsalChips, boolean hasMoved) {
+        this.name = name;
+        this.rank = rank;
+        this.money = money;
+        this.credits = credits;
+        this.location = location;
+        this.currentRole = currentRole;
+        this.rehearsalChips = rehearsalChips;
+        this.hasMoved = hasMoved; 
+
+    }
+
     public static void main(String[] args) {
+        // Define Player processes
+        // Player Moves
+        // Player chooses to either take role, act, or rehearse
+        // Player can rank upgrade if requirements are met
+
 
 
     }
@@ -24,6 +41,10 @@ public class Player {
      * Moves player between locations
      */
     public static void move(Location newLocation) {
+        // Should be called with a specific player in mind
+        // Changes that players location state to the new inserted state
+        
+
         
 
     }
@@ -49,7 +70,7 @@ public class Player {
     }
 
     /**
-     * 
+     * Rehearses role
      */
     public static void rehearse() {
 

@@ -1,3 +1,5 @@
+// Created by Sukhman Lally
+
 public class SetLocation extends Location {
     private Scene scene;
     private Role[] roles;

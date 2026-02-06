@@ -1,3 +1,5 @@
+// Created by Sukhman Lally
+
 public class Board {
     private Location[] locations;
     private Scene[] scenes;
