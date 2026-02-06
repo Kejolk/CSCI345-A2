@@ -16,20 +16,20 @@ public class player {
     public static void main(String[] args) {
 
 
-        
     }
 
 
     // Methods
     /**
-     * 
+     * Moves player between locations
      */
     public static void move(Location newLocation) {
+        
 
     }
 
     /**
-     * 
+     * Takes role 
      */
     public static boolean takeRole(Role role) {
         boolean temp = false;
@@ -39,7 +39,7 @@ public class player {
     }
 
     /**
-     * 
+     * Performs role for Player, given the Player has a role
      */
     public static boolean act() {
         boolean temp = false;
@@ -56,7 +56,7 @@ public class player {
     }
 
     /**
-     * 
+     * Requests a rank upgrade
      */
     public static boolean upgradeRank() {
         boolean temp = false;
@@ -66,7 +66,7 @@ public class player {
     }
 
     /**
-     * 
+     * Resets the day cycle 
      */
     public static void resetNewDay() {
 

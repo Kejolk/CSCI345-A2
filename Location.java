@@ -10,7 +10,9 @@ public class Location {
     String name;
     List<Location> adjacentLocations; 
     
-
+    public Location(String name) {
+        this.name = name;
+    }
     public static void main(String[] args) {
         System.out.println("Hello world!");
     }

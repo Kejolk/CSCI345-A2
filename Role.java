@@ -5,7 +5,7 @@
 public class Role {
     String name;
     int recquiredRank;
-    player occupiedBy;
+    Player occupiedBy;
     boolean onCard;
 
     public static void main(String[] args) {
