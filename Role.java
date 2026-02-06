@@ -5,7 +5,7 @@
 public class Role {
     String name;
     int recquiredRank;
-    Player occupiedBy;
+    player occupiedBy;
     boolean onCard;
 
     public static void main(String[] args) {
@@ -19,7 +19,7 @@ public class Role {
      * 
      * @return
      */
-    public static boolean assignPlayer(Player player) {
+    public static boolean assignPlayer(player player) {
         boolean temp = false;
 
         return temp;
