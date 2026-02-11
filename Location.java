@@ -7,8 +7,8 @@ import java.util.List;
 
 // Main class
 public class Location {
-    String name;
-    List<Location> adjacentLocations; 
+    private String name;
+    private List<Location> adjacentLocations; 
     
     public Location(String name) {
         this.name = name;
@@ -17,13 +17,16 @@ public class Location {
         System.out.println("Hello world!");
     }
 
+    public String getName() {
+        return name;
+    }
     // Methods
 
     /**
      * 
      * @return
      */
-    public static List<Location> getAdjacentLocations() {
+    public List<Location> getAdjacentLocations() {
         List<Location> temp = null;
         return temp;
 
@@ -33,7 +36,7 @@ public class Location {
      * 
      * @param location
      */
-    public static void addAdjacentLocation(Location location) {
+    public void addAdjacentLocation(Location location) {
 
     }
 
