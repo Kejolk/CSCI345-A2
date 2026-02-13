@@ -51,6 +51,14 @@ public class Player {
     /**
      * Moves player if they have not moved already and if they do not have a role 
      */
+    public String getName() {
+        return name;
+    }
+
+    public void setRole(Role role) {
+        currentRole = role;
+    }
+
     public void move(Location newLocation) {
         // If the player has moved already
         if (hasMoved) {
@@ -98,7 +106,7 @@ public class Player {
         }
 
         // if the players rank is lower than the recquired rank the role needs return false
-        if (rank < role.requiredRank) {
+        if (rank < role.getRequiredRank()) {
             return false;
         }
 
