@@ -1,39 +1,37 @@
 // Defines the Location Class
-// Created by Arvind Ramesh
-// Implement Skeleton
+// Created by Arvind Ramesh (Skeleton)
+// Implemented by Sukhman
 
 // Imports
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 // Main class
 public class Location {
-    String name;
-    List<Location> adjacentLocations; 
+    private String name;
+    private List<Location> adjacentLocations; 
     
     public Location(String name) {
         this.name = name;
-        adjacentLocations = new ArrayList<>();
+        this.adjacentLocations = new ArrayList<>();
     }
 
-    // Methods
+    public String getName() {
+        return name;
+    }
 
-    /**
-     * 
-     * @return
-     */
-    public List<Location> getAdjacentLocations() {
+    public List<Location> getAdjacentLocations() {;
         return adjacentLocations;
 
     }
 
-    /**
-     * 
-     * @param location
-     */
     public void addAdjacentLocation(Location location) {
-        adjacentLocations.add(location);
-
+        if(location != null && !adjacentLocations.contains(location)) {
+            adjacentLocations.add(location);
+        }
     }
 
+    public static void main(String[] args) {
+        System.out.println("Testing for compile: Location");
+    }
+    
 }

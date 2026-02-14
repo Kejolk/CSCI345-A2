@@ -1,12 +1,11 @@
-// Created by Sukhman Lally
-
-import java.io.File;
 import java.util.*;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Element;
+import java.io.File;
+
 
 public class ParseXML {
 
@@ -175,6 +174,9 @@ public class ParseXML {
         }
     }
    
+    public static void main(String[] args) {
+        System.out.println("Testing for compile: ParseXML");
+    }
 }
 
 

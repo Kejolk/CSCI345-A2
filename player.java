@@ -4,21 +4,23 @@
 
 
 public class Player {
-    String name;
-    int rank;
-    int money;
-    int credits;
-    Location location;
-    Role currentRole;
-    int rehearsalChips;
-    boolean hasMoved; 
+    private String name;
+    private int rank;
+    private int money;
+    private int credits;
+    private Location location;
+    private Scene scene;
+    private Role currentRole;
+    private int rehearsalChips;
+    private boolean hasMoved; 
 
-    public Player(String name, int rank, int money, int credits, Location location, Role currentRole, int rehearsalChips, boolean hasMoved) {
+    public Player(String name, int rank, int money, int credits, Location location, Scene scene, Role currentRole, int rehearsalChips, boolean hasMoved) {
         this.name = name;
         this.rank = rank;
         this.money = money;
         this.credits = credits;
         this.location = location;
+        this.scene = scene;
         this.currentRole = currentRole;
         this.rehearsalChips = rehearsalChips;
         this.hasMoved = hasMoved; 
@@ -30,9 +32,10 @@ public class Player {
         // Create locations to test move
         Location start = new Location("Start");
         Location town = new Location("Town");
+        Scene scene1 = new Scene();
 
         // Create test player
-        Player test = new Player("Arvind", 1, 25, 10, start, null, 0, false);
+        Player test = new Player("Arvind", 1, 25, 10, start, scene1, null, 0, false);
 
         // Link locations 
         start.addAdjacentLocation(town);
@@ -48,6 +51,14 @@ public class Player {
     /**
      * Moves player if they have not moved already and if they do not have a role 
      */
+    public String getName() {
+        return name;
+    }
+
+    public void setRole(Role role) {
+        currentRole = role;
+    }
+
     public void move(Location newLocation) {
         // If the player has moved already
         if (hasMoved) {
@@ -59,10 +70,9 @@ public class Player {
         
         // If player currently has a role
         if (currentRole != null) {
-            // Remove the player from the role
-            currentRole.removePlayer();
-            // Set role to null
-            currentRole = null;
+            // Print error message
+            System.out.println(name + " cannot move while working on a role.");
+            return;
         }
 
         // If location is null then change nothing
@@ -77,7 +87,7 @@ public class Player {
             // Set movement status to true
             hasMoved = true;
             // Print out update message
-            System.out.println(name + " moved to " + newLocation.name);
+            System.out.println(name + " moved to " + newLocation.getName());
         } else {
             // If location chosen is not adjacent, print out invalid message
             System.out.println("Invalid move.");
@@ -96,7 +106,7 @@ public class Player {
         }
 
         // if the players rank is lower than the recquired rank the role needs return false
-        if (rank < role.requiredRank) {
+        if (rank < role.getRequiredRank()) {
             return false;
         }
 
@@ -125,9 +135,9 @@ public class Player {
         // Dice roll value calc
         int diceRoll = (int)(Math.random() * 6) + 1;
 
-        // If the dice roll and players rehearsalchips are high enough give credits to player
-        if (diceRoll + rehearsalChips >= currentRole.requiredRank) {
-            credits += 2;                                                       // CHECK HOW MANY CREDITS YOU NEED
+        // If the dice roll and players rehearsal chips are high enough give credits to player
+        if (diceRoll + rehearsalChips >= scene.getBudget()) {
+            credits += 2;              //NOTE: add off/on card distinction        // CHECK HOW MANY CREDITS YOU NEED
             return true;
         }
 
@@ -144,15 +154,17 @@ public class Player {
             return;
         }
 
-        // Increase rehearsal chip count
-        rehearsalChips++;
+        // Increase rehearsal chip count, cannot have more rehearsal chips than budget
+        if(rehearsalChips < scene.getBudget() - 1) {
+            rehearsalChips++;
+        }
 
     }
 
     /**
      * Requests a rank upgrade
      */
-    public boolean upgradeRank(int newRank, int cost, boolean useCredits) {
+    public boolean upgradeRank(int newRank, int cost, boolean useCredits) { // NOTE: update this to remove cost, cost comes from CastingOffice
         // If players new rank is lower or the same as current rank return false
         if (newRank <= rank) {
             return false;
