@@ -42,7 +42,11 @@ public class Role {
     }
 
     public void removePlayer() {
-        occupiedBy = null;
+        if (occupiedBy != null) {
+            occupiedBy.setRole(null);
+            occupiedBy = null;
+            
+        }
     }
 
     public boolean isAvailable() {

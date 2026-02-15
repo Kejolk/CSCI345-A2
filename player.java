@@ -1,6 +1,5 @@
 // Defines the Player class
 // Created by Arvind Ramesh
-// Implement fully by Wednesday night
 
 
 public class Player {
@@ -32,7 +31,7 @@ public class Player {
         // Create locations to test move
         Location start = new Location("Start");
         Location town = new Location("Town");
-        Scene scene1 = new Scene();
+        Scene scene1 = new Scene("Test Scene", 3, new Role[0]);
 
         // Create test player
         Player test = new Player("Arvind", 1, 25, 10, start, scene1, null, 0, false);
