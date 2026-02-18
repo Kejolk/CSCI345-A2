@@ -18,6 +18,7 @@ public class Board {
 
     /**
      * Creates new board with current test locations for implementation purposes
+     * Work on: 
      */
     public void setupBoard() {
         // Create locations (add more when game sets up)
@@ -95,4 +96,9 @@ public class Board {
         }
         return location1.getAdjacentLocations().contains(location2); 
         }
+
+    // pull all scene names into a list or data structure
+    // shuffle order 
+    // Create a scene object in each location
+    // clear and redo per day
 }
