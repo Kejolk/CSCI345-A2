@@ -1,10 +1,11 @@
 // Created by Sukhman Lally
 // Implemented by Arvind Ramesh
 
+import java.util.*;
+
 
 public class Board {
     private Location[] locations;
-    private Scene[] scenes;
 
 
     // Getters
@@ -12,31 +13,102 @@ public class Board {
         return locations;
     }
 
-    public Scene[] getScenes() {
-        return scenes;
-    }
 
     /**
      * Creates new board with current test locations for implementation purposes
      * Work on: 
      */
     public void setupBoard() {
-        // Create locations (add more when game sets up)
-        Location start = new Location("Start");
-        Location town = new Location("Town");
-        Location testLocation = new Location("Test");
+        // create parser object
+        ParseXML parser = new ParseXML();
 
-        // Connect locations
-        start.addAdjacentLocation(town);
-        town.addAdjacentLocation(start);
+        // acquire board and card data
+        parser.readBoardData("XML/board.xml");
+        parser.readCardData("XML/cards.xml");
 
-        town.addAdjacentLocation(testLocation);
-        testLocation.addAdjacentLocation(town);
+        // create a map to store locations
+        Map<String, Location> locationMap = new HashMap<>();
 
-        // Initialize locations and scenes list
-        locations = new Location[] {start, town, testLocation};
-        scenes = new Scene[locations.length];
+        // Creates location objects 
+        for (ParseXML.LocationData data : parser.getLocations()) {
+            Location loc;
 
+            // if location is CastingOffice create special subclass
+            if (data.isCastingOffice) {
+                loc = new CastingOffice(data.name);
+                
+            } else {
+                loc = new Location(data.name);
+            }
+
+            // store location in map
+            locationMap.put(data.name, loc);
+
+
+        }
+
+        // Connects adjacent locations
+        for (ParseXML.LocationData data : parser.getLocations()) {
+            Location curr = locationMap.get(data.name);
+
+            // add each neighbor to adjacency list
+            for (String neighborName : data.neighbors) {
+                Location neighbor = locationMap.get(neighborName);
+                if (neighbor != null) {
+                    curr.addAdjacentLocation(neighbor);
+                    
+                }
+
+                
+            }
+            
+        }
+
+        // convert map into array for easier use
+        locations = locationMap.values().toArray(new Location[0]);
+
+
+        // copy card list and shuffle
+        List<ParseXML.CardData> cardList = new ArrayList<>(parser.getCards());
+        Collections.shuffle(cardList);
+
+        List<Scene> sceneList = new ArrayList<>();
+
+        // converts carddata into scene object
+        for (ParseXML.CardData card : cardList) {
+            // creates Role objects for the scene
+            Role[] roles = new Role[card.roles.size()];
+            for (int i = 0; i < card.roles.size(); i++) {
+                ParseXML.RoleData r = card.roles.get(i);
+                roles[i] = new Role(r.name, r.rank, r.onCard);
+                
+            }
+
+            // create scene and add to scene list
+            Scene scene = new Scene(card.name, card.budget, roles);
+            sceneList.add(scene);
+            
+        }
+
+
+        // Assign scenes to valid locations
+        int sceneIndex = 0;
+
+        for (ParseXML.LocationData data : parser.getLocations()) {
+            // only assign scenes to regular locations
+            if (!data.isTrailer && !data.isCastingOffice) {
+                Location loc = locationMap.get(data.name);
+
+                // make sure we dont exceed available scenes
+                if (sceneIndex < sceneList.size()) {
+                    loc.setScene(sceneList.get(sceneIndex));
+                    sceneIndex++;
+                    
+                }
+                
+            }
+            
+        }
 
     }
 
@@ -68,19 +140,18 @@ public class Board {
      * Resets all scenes for next/new day
      */
     public void resetScene() {
-        if (scenes == null) {
+        if (locations == null) {
             return;
             
         }
 
-        for (Scene scene : scenes) {
-            if (scene != null) {
-                scene.reset(); // added reset() method to scene class
+        for (Location loc : locations) {
+            if (loc.getScene() != null) {
+                loc.getScene().reset();
                 
             }
             
         }
-
     }
 
     /**
@@ -97,8 +168,4 @@ public class Board {
         return location1.getAdjacentLocations().contains(location2); 
         }
 
-    // pull all scene names into a list or data structure
-    // shuffle order 
-    // Create a scene object in each location
-    // clear and redo per day
 }

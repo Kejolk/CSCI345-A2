@@ -18,15 +18,25 @@ public class GameManager {
     }
 
     /**
-     * 
+     * Starts the game
      */
     public void startGame() {
         board.setupBoard();
 
         currentDay = 1;
-        maxDays = 3; // will adjusst based on parser
         currentPlayerIndex = 0;
         gameRunning = true;
+
+        // move all players to the starting Trailer
+        Location trailer = board.getLocation("Trailer");
+        for (Player player : players) {
+            player.resetNewDay();
+            if (trailer != null) {
+                player.move(trailer);
+                
+            }
+            
+        }
 
         startDay();
     }
@@ -60,7 +70,7 @@ public class GameManager {
     }
 
     public void nextTurn() {
-        if (!gameRunning) {
+        if (!gameRunning || players.isEmpty()) {
             return;
             
         }
@@ -83,7 +93,7 @@ public class GameManager {
         int highestScore = -1;
 
         for (Player player : players) {
-            int score = player.getName().length();
+            int score = player.getMoney() + player.getCredits() + (player.getRank() * 5);
 
             if (score > highestScore) {
                 highestScore = score;
@@ -95,7 +105,7 @@ public class GameManager {
         }
 
         if (winner != null) {
-            System.out.println("Winner is: " + winner.getName());
+            System.out.println("Winner is: " + winner.getName() + " with score: " + highestScore);
             
         }
     }

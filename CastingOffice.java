@@ -29,32 +29,37 @@ public class CastingOffice extends Location {
      * Can only upgrade once 
      */
     public boolean upgradePlayer(Player player, int rank) { 
+        // validates player
         if (player == null) {
             return false;
             
         }
 
+        // validates rank range
         if (rank <= 0 || rank >= upgradeCosts.length) {
             return false;
             
         }
 
+        // get costs for requesated rank
         int moneyCost = upgradeCosts[rank][0];
         int creditCost = upgradeCosts[rank][1];
 
+        // check for upgrade with credits
         if (player.upgradeRank(rank, creditCost, true)) {
             System.out.println(player.getName() + " upgraded to rank " + rank + " using credits.");
             return true;
             
         }
 
+        // check for upgrading with money
         if (player.upgradeRank(rank, moneyCost, false)) {
             System.out.println(player.getName() + " upgraded to rank " + rank + " using money.");
             return true;
             
         }
 
-
+        // print if upgrade failed
         System.out.println("Upgrade failed.");
         return false; 
     }

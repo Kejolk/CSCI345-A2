@@ -8,7 +8,6 @@ public class Player {
     private int money;
     private int credits;
     private Location location;
-    private Scene scene;
     private Role currentRole;
     private int rehearsalChips;
     private boolean hasMoved; 
@@ -19,39 +18,28 @@ public class Player {
         this.money = money;
         this.credits = credits;
         this.location = location;
-        this.scene = scene;
         this.currentRole = currentRole;
         this.rehearsalChips = rehearsalChips;
         this.hasMoved = hasMoved; 
 
     }
 
-    public static void main(String[] args) {
-        // Purely for testing
-        // Create locations to test move
-        Location start = new Location("Start");
-        Location town = new Location("Town");
-        Scene scene1 = new Scene("Test Scene", 3, new Role[0]);
-
-        // Create test player
-        Player test = new Player("Arvind", 1, 25, 10, start, scene1, null, 0, false);
-
-        // Link locations 
-        start.addAdjacentLocation(town);
-        town.addAdjacentLocation(start);
-
-        // Player Moves using move()
-        test.move(town);
-
-    }
-
-
     // Methods
-    /**
-     * Moves player if they have not moved already and if they do not have a role 
-     */
+
     public String getName() {
         return name;
+    }
+
+    public int getRank() {
+        return rank;
+    }
+
+    public int getMoney() {
+        return money;
+    }
+
+    public int getCredits() {
+        return credits;
     }
 
     public void setRole(Role role) {
@@ -135,7 +123,7 @@ public class Player {
         int diceRoll = (int)(Math.random() * 6) + 1;
 
         // If the dice roll and players rehearsal chips are high enough give credits to player
-        if (diceRoll + rehearsalChips >= scene.getBudget()) {
+        if (diceRoll + rehearsalChips >= location.getScene().getBudget()) {
             credits += 2;              //NOTE: add off/on card distinction        // CHECK HOW MANY CREDITS YOU NEED
             return true;
         }
@@ -154,7 +142,7 @@ public class Player {
         }
 
         // Increase rehearsal chip count, cannot have more rehearsal chips than budget
-        if(rehearsalChips < scene.getBudget() - 1) {
+        if(rehearsalChips < location.getScene().getBudget() - 1) {
             rehearsalChips++;
         }
 
