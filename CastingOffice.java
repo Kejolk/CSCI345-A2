@@ -7,6 +7,17 @@ public class CastingOffice extends Location {
 
     public CastingOffice(String name) {
         super(name);
+
+        upgradeCosts = new int[][] {
+            // ranks 0-6
+            {0, 0}, 
+            {0, 0},
+            {4, 5},
+            {10, 10},
+            {18, 15},
+            {28, 20},
+            {40, 25}
+        };
     }
 
     public int[][] getUpgradeCosts() {
@@ -18,12 +29,33 @@ public class CastingOffice extends Location {
      * Can only upgrade once 
      */
     public boolean upgradePlayer(Player player, int rank) { 
-        // check if player is allowed to upgrade
-        
-        // Based on rank, charge appropriately
+        if (player == null) {
+            return false;
+            
+        }
+
+        if (rank <= 0 || rank >= upgradeCosts.length) {
+            return false;
+            
+        }
+
+        int moneyCost = upgradeCosts[rank][0];
+        int creditCost = upgradeCosts[rank][1];
+
+        if (player.upgradeRank(rank, creditCost, true)) {
+            System.out.println(player.getName() + " upgraded to rank " + rank + " using credits.");
+            return true;
+            
+        }
+
+        if (player.upgradeRank(rank, moneyCost, false)) {
+            System.out.println(player.getName() + " upgraded to rank " + rank + " using money.");
+            return true;
+            
+        }
 
 
-        
+        System.out.println("Upgrade failed.");
         return false; 
     }
 }
