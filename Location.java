@@ -9,10 +9,15 @@ import java.util.*;
 public class Location {
     private String name;
     private List<Location> adjacentLocations; 
+    private Scene scene;
     
     public Location(String name) {
         this.name = name;
         this.adjacentLocations = new ArrayList<>();
+    }
+
+    public void setScene(Scene scene) {
+        this.scene = scene;
     }
 
     public String getName() {
@@ -24,14 +29,13 @@ public class Location {
 
     }
 
+    public Scene getScene() {
+        return scene;
+    }
+
     public void addAdjacentLocation(Location location) {
         if(location != null && !adjacentLocations.contains(location)) {
             adjacentLocations.add(location);
         }
     }
-
-    public static void main(String[] args) {
-        System.out.println("Testing for compile: Location");
-    }
-    
 }

@@ -1,71 +1,75 @@
 // Defines the Player class
 // Created by Arvind Ramesh
-// Implement fully by Wednesday night
-
 
 public class Player {
     private String name;
-    private int rank;
-    private int money;
-    private int credits;
+    private int rank = 1; // sets initial values, will be overwritten if needed based on player count
+    private int money = 0;
+    private int credits = 0;
     private Location location;
-    private Scene scene;
     private Role currentRole;
-    private int rehearsalChips;
-    private boolean hasMoved; 
+    private int rehearsalChips = 0;
+    private boolean hasMoved = false; 
 
-    public Player(String name, int rank, int money, int credits, Location location, Scene scene, Role currentRole, int rehearsalChips, boolean hasMoved) {
+    public Player(String name) {
         this.name = name;
-        this.rank = rank;
-        this.money = money;
-        this.credits = credits;
-        this.location = location;
-        this.scene = scene;
-        this.currentRole = currentRole;
-        this.rehearsalChips = rehearsalChips;
-        this.hasMoved = hasMoved; 
-
     }
-
-    public static void main(String[] args) {
-        // Purely for testing
-        // Create locations to test move
-        Location start = new Location("Start");
-        Location town = new Location("Town");
-        Scene scene1 = new Scene();
-
-        // Create test player
-        Player test = new Player("Arvind", 1, 25, 10, start, scene1, null, 0, false);
-
-        // Link locations 
-        start.addAdjacentLocation(town);
-        town.addAdjacentLocation(start);
-
-        // Player Moves using move()
-        test.move(town);
-
-    }
-
 
     // Methods
-    /**
-     * Moves player if they have not moved already and if they do not have a role 
-     */
+
     public String getName() {
         return name;
+    }
+
+    public int getRank() {
+        return rank;
+    }
+
+    public int getMoney() {
+        return money;
+    }
+
+    public int getCredits() {
+        return credits;
+    }
+
+    public Role getRole() {
+        return currentRole;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void addCredits(int credits) {
+        this.credits += credits;
+    }
+
+    public void addMoney(int money) {
+        this.money += money;
     }
 
     public void setRole(Role role) {
         currentRole = role;
     }
 
+    public void setRank (int rank) {
+        this.rank = rank;
+    }
+
+    public void setMoved(boolean moved) {
+        hasMoved = moved;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
     public void move(Location newLocation) {
         // If the player has moved already
         if (hasMoved) {
             // Print error message
             System.out.println(name + " already moved this turn.");
             return;
-            
         }
         
         // If player currently has a role
@@ -75,74 +79,93 @@ public class Player {
             return;
         }
 
-        // If location is null then change nothing
-        if (location == null) {
+        // If new location is not adjacent, player can't move
+        if (!location.getAdjacentLocations().contains(newLocation)) {
+            System.out.println("Invalid move. Not an adjacent location.");
             return;
         }
 
-        // If the location chosen is adjacent to the current location
-        if (location.getAdjacentLocations().contains(newLocation)) {
-            // Set player location to new location
-            location = newLocation;
-            // Set movement status to true
-            hasMoved = true;
-            // Print out update message
-            System.out.println(name + " moved to " + newLocation.getName());
-        } else {
-            // If location chosen is not adjacent, print out invalid message
-            System.out.println("Invalid move.");
-        }
+        location = newLocation;
+        hasMoved = true;
 
+        System.out.println(name + " has moved to " + newLocation.getName());
+
+        if(newLocation instanceof SetLocation) {
+            SetLocation set = (SetLocation) newLocation;
+            if(set.getScene() != null && !set.getScene().isRevealed()) {
+                set.revealScene();
+            }
+        }
     }
 
     /**
      * Takes role 
      */
-    public boolean takeRole(Role role) {
+    public void takeRole(Role role) {
+
+        if(!(location instanceof SetLocation)) {
+            System.out.println("Must be on a set to take a role.");
+        }
         // If the players current role is filled
         if (currentRole != null) {
-            // return false
-            return false;
+            System.out.println(name + " already has a role.");
+            return;
         }
 
         // if the players rank is lower than the recquired rank the role needs return false
         if (rank < role.getRequiredRank()) {
-            return false;
+            System.out.println(name + "'s rank is too low for this role.");
+            return;
         }
 
         // If the role is not available return false
         if (!role.isAvailable()) {
-            return false;
+            System.out.println("This role is already taken.");
+            return;
         }
 
         // Assign the role the the player
         role.assignPlayer(this);
-        currentRole = role;
-
-        return true;
-
+        rehearsalChips = 0;
     }
 
     /**
      * Performs role for Player, given the Player has a role
      */
-    public boolean act() {
+    public void act() {
+        if (!(location instanceof SetLocation)) {
+            System.out.println(name + " cannot act here!");
+            return;
+        }
         // If the player has no role then return false
         if (currentRole == null) {
-            return false;
+            System.out.println(name + " does not currently have a role.");
+            return;
         }
 
         // Dice roll value calc
         int diceRoll = (int)(Math.random() * 6) + 1;
 
+        Scene scene = location.getScene();
+        SetLocation set = (SetLocation) location; // can convert the location to set due to inheritance 
+
         // If the dice roll and players rehearsal chips are high enough give credits to player
         if (diceRoll + rehearsalChips >= scene.getBudget()) {
-            credits += 2;              //NOTE: add off/on card distinction        // CHECK HOW MANY CREDITS YOU NEED
-            return true;
+            if(currentRole.isOnCard()) {
+                addCredits(2);
+            } else {
+                addCredits(1);
+                addMoney(1);
+            }
+            set.removeShot();
+            System.out.println(name + " succeeded in acting! Shots left on this set " + set.getShotsRemaining());
+            return;
         }
-
-        // else return nothing
-        return false;
+        System.out.println(name + " failed in acting.");
+        if(!currentRole.isOnCard()) {
+            addMoney(1);
+            return;
+        }
     }
 
     /**
@@ -151,44 +174,15 @@ public class Player {
     public void rehearse() {
         // if player has no role return nothing
         if (currentRole == null) {
+            System.out.println("Cannot rehearse without a role.");
             return;
         }
-
+        SetLocation set = (SetLocation) location;
         // Increase rehearsal chip count, cannot have more rehearsal chips than budget
-        if(rehearsalChips < scene.getBudget() - 1) {
+        if(rehearsalChips < set.getScene().getBudget() - 1) {
             rehearsalChips++;
+            System.out.println(name + " rehearsed. Current rehearsal chips equal: " + rehearsalChips);
         }
-
-    }
-
-    /**
-     * Requests a rank upgrade
-     */
-    public boolean upgradeRank(int newRank, int cost, boolean useCredits) { // NOTE: update this to remove cost, cost comes from CastingOffice
-        // If players new rank is lower or the same as current rank return false
-        if (newRank <= rank) {
-            return false;
-        }
-
-        // If player has enough credits for the rank
-        if (useCredits && credits >= cost) {
-            // Deduct appropriate amount of credits and reassign the new rank
-            credits -= cost;
-            rank = newRank;
-            return true;
-        }
-
-        // If the player does not have enough credits but has enough money
-        if (!useCredits && money >= cost) {
-            // Deduct appropriate amount of money and reassign the new rank
-            money -= cost;
-            rank = newRank;
-            return true;
-
-        }
-
-        // else return false
-        return false;
 
     }
 
@@ -202,7 +196,4 @@ public class Player {
         hasMoved = false;
 
     }
-
-
-
 }

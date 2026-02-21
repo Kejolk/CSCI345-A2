@@ -27,6 +27,10 @@ public class Role {
         return requiredRank;
     }
 
+    public boolean isOnCard() {
+        return onCard;
+    }
+
     public void assignPlayer(Player player) {
         if(player != null && isAvailable()) {
             occupiedBy = player;
@@ -38,15 +42,15 @@ public class Role {
     }
 
     public void removePlayer() {
-        occupiedBy = null;
+        if (occupiedBy != null) {
+            occupiedBy.setRole(null);
+            occupiedBy = null;
+            
+        }
     }
 
     public boolean isAvailable() {
        return occupiedBy == null;
-    }
-
-    public static void main(String[] args) {
-        System.out.println("Testing for compile: Role");
     }
 
 }

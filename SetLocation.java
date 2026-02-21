@@ -1,15 +1,18 @@
 // Implemented by Sukhman
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SetLocation extends Location {
     private Scene scene;
     private ArrayList<Role> roles = new ArrayList<>();
     private int shotsRemaining;
+    private int initialShots;
 
     public SetLocation(String name, int shotsRemaining) {
         super(name);
         this.shotsRemaining = shotsRemaining;
+        this.initialShots = shotsRemaining;
     }
 
     public int getShotsRemaining() {
@@ -54,7 +57,15 @@ public class SetLocation extends Location {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println("Testing for compile: SetLocation");
+    public void resetShots() {
+        this.shotsRemaining = initialShots;
     }
-}  
+
+    public List<Role> getAvailableRoles() { // returns list of available roles
+    List<Role> available = new ArrayList<>();
+    for (Role ro : roles) {
+        if (ro.isAvailable()) available.add(ro);
+    }
+    return available;
+    }
+}
