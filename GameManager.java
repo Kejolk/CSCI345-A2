@@ -92,7 +92,7 @@ public class GameManager {
                         break;
                     case "end":
                         turnComplete = true;
-                        currentPlayer.setMoved(false);
+                        currentPlayer.setActionTaken(false);
                         break;
                     case "help":
                         helpPrint();
@@ -101,7 +101,7 @@ public class GameManager {
                         playerInfo(currentPlayer);
                         break;
                     case "where":
-                        System.out.println(currentPlayer.getName() + " is at " + currentPlayer.getLocation().getName());
+                        System.out.println(currentPlayer.getName() + " is at " + currentPlayer.getLocation().getName() + ".");
                         break;
                     case "endgame":
                         System.out.println("Ending the game.");
@@ -133,8 +133,7 @@ public class GameManager {
             System.out.println("Location " + i + ": " + adj.get(i).getName());
         }
 
-        System.out.println("Enter number of location to move to:");
-        int locationChoice = Integer.parseInt(scan.nextLine());
+        int locationChoice = isValidIntInput(0, adj.size() - 1, "Enter number of location to move to:");
         if (locationChoice < 0 || locationChoice >= adj.size()) {
             System.out.println("Invaid location selected");
             return;
@@ -154,19 +153,25 @@ public class GameManager {
 
         SetLocation set = (SetLocation) loc;
         List<Role> availableRoles = set.getAvailableRoles();
+        
 
         if(availableRoles.isEmpty()) {
             System.out.println("There is no available role on this set.");
         } else {
+            String roleType;
             System.out.println("These are the avaiable roles");
             for (int i = 0; i < availableRoles.size(); i++) {
                 Role r = availableRoles.get(i);
-                System.out.println("Role " + i + ": " + r.getName() + " (Rank " + r.getRequiredRank() + ")");
+                if(r.isOnCard()) {
+                    roleType = "On Card";
+                } else {
+                    roleType = "Off Card";
+                }
+                System.out.println("Role " + i + ": " + r.getName() + " (Rank " + r.getRequiredRank() + " - " + roleType + ")");
             }
         }
-
-        System.out.println("Enter number of role to take:");
-        int roleChoice = Integer.parseInt(scan.nextLine());
+        
+        int roleChoice = isValidIntInput(0, availableRoles.size() - 1, "Enter number of role to take:");
         if(roleChoice >= 0 && roleChoice < availableRoles.size()) {
             player.takeRole(availableRoles.get(roleChoice));
         }
@@ -176,16 +181,20 @@ public class GameManager {
         Location loc = board.getLocation("Casting Office");
     
         CastingOffice office = (CastingOffice) loc;
+        System.out.println("Upgrade Costs:");
+        System.out.println("Rank   |   Money    |    Credits");
+        System.out.println("2           04             05\n3           10             18\n4           18             15");
+        System.out.println("5           28             20\n6           40             25");
 
-        System.out.println("Enter target rank (2-6):");
-        int targetRank = Integer.parseInt(scan.nextLine());
+        int targetRank = isValidIntInput(2, 6, "Enter target rank:");
+
 
         if (targetRank < 2 || targetRank > 6) {
             System.out.println("Invalid rank. You can only upgrade to ranks 2-6.");
             return;
         }
 
-        System.out.println("Do you wish to use credits (selecting no will use money)? (yes/no)");
+        System.out.println("Do you wish to use credits (type 'yes' if you wish to use credits as any another input will select money).");
         boolean useCredits = scan.nextLine().equalsIgnoreCase("yes");
 
         office.upgradePlayer(player, targetRank, useCredits); 
@@ -232,6 +241,26 @@ public class GameManager {
             
         }
     }
+
+    private int isValidIntInput(int min, int max, String prompt) { // catches any non-valid inputs
+    while (true) {
+        System.out.println(prompt);
+        String input = scan.nextLine();
+
+        try {
+            int value = Integer.parseInt(input);
+
+            if (value >= min && value <= max) {
+                return value;
+            } else {
+                System.out.println("Please enter a number between " + min + " and " + max + ".");
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a valid number.");
+        }
+    }
+}
 
     public void playerInfo(Player currentPlayer) {
         System.out.print(currentPlayer.getName() + " | Rank: " + currentPlayer.getRank()

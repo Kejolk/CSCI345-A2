@@ -30,6 +30,12 @@ public class CastingOffice extends Location {
             return;
             
         }
+
+        if(rank <= player.getRank()) {
+            System.out.println("You may only upgrade to a rank higher than your current one.");
+            return;
+        }
+        
         int cost;
         if(useCredits) {
             cost = upgradeCosts[rank][1];

@@ -9,7 +9,7 @@ public class Player {
     private Location location;
     private Role currentRole;
     private int rehearsalChips = 0;
-    private boolean hasMoved = false; 
+    private boolean actionTaken = false;
 
     public Player(String name) {
         this.name = name;
@@ -57,8 +57,8 @@ public class Player {
         this.rank = rank;
     }
 
-    public void setMoved(boolean moved) {
-        hasMoved = moved;
+    public void setActionTaken(boolean action) {
+        actionTaken = action;
     }
 
     public void setLocation(Location location) {
@@ -66,9 +66,9 @@ public class Player {
     }
     public void move(Location newLocation) {
         // If the player has moved already
-        if (hasMoved) {
+        if (actionTaken) {
             // Print error message
-            System.out.println(name + " already moved this turn.");
+            System.out.println(name + " may not move this turn. Wait until next turn to move, act or rehearse.");
             return;
         }
         
@@ -86,9 +86,10 @@ public class Player {
         }
 
         location = newLocation;
-        hasMoved = true;
+        actionTaken = true;
 
         System.out.println(name + " has moved to " + newLocation.getName());
+        actionTaken = true;
 
         if(newLocation instanceof SetLocation) {
             SetLocation set = (SetLocation) newLocation;
@@ -109,6 +110,13 @@ public class Player {
         // If the players current role is filled
         if (currentRole != null) {
             System.out.println(name + " already has a role.");
+            return;
+        }
+
+        SetLocation set = (SetLocation) location;
+
+        if(set.isSceneComplete()) {
+            System.out.println("This scene has already wrapped. " + name + " cannot take a role. Please move to a new set.");
             return;
         }
 
@@ -133,6 +141,11 @@ public class Player {
      * Performs role for Player, given the Player has a role
      */
     public void act() {
+        if (actionTaken) {
+            System.out.println(name + " may not act this turn. Wait until next turn to move, act or rehearse");
+            return;
+        }
+
         if (!(location instanceof SetLocation)) {
             System.out.println(name + " cannot act here!");
             return;
@@ -146,24 +159,39 @@ public class Player {
         // Dice roll value calc
         int diceRoll = (int)(Math.random() * 6) + 1;
 
-        Scene scene = location.getScene();
+        
         SetLocation set = (SetLocation) location; // can convert the location to set due to inheritance 
+        Scene scene = set.getScene();
+
+        if(set.isSceneComplete()) {
+            System.out.println("This scene has already wrapped. " + name + " cannot act.");
+            return;
+        }
 
         // If the dice roll and players rehearsal chips are high enough give credits to player
         if (diceRoll + rehearsalChips >= scene.getBudget()) {
             if(currentRole.isOnCard()) {
                 addCredits(2);
+                System.out.println(name + " has earned 2 credits!");
             } else {
                 addCredits(1);
                 addMoney(1);
+                System.out.println(name + " has earned 1 credit and 1 dollar!");
             }
             set.removeShot();
-            System.out.println(name + " succeeded in acting! Shots left on this set " + set.getShotsRemaining());
+            System.out.println(name + " succeeded in acting! Shots left on this set: " + set.getShotsRemaining());
+            if(set.isSceneComplete()) {
+                System.out.println("Scene has wrapped!");
+                set.wrapScene();
+            }
+            actionTaken = true;
             return;
         }
         System.out.println(name + " failed in acting.");
+        actionTaken = true;
         if(!currentRole.isOnCard()) {
             addMoney(1);
+            System.out.println(name + " has earned 1 dollar!");
             return;
         }
     }
@@ -172,16 +200,26 @@ public class Player {
      * Rehearses role
      */
     public void rehearse() {
+        if (actionTaken) {
+            System.out.println(name + " may not rehearse this turn. Wait until next turn to move, act or rehearse.");
+            return;
+        }
         // if player has no role return nothing
         if (currentRole == null) {
             System.out.println("Cannot rehearse without a role.");
             return;
         }
         SetLocation set = (SetLocation) location;
+
+        if(set.isSceneComplete()) {
+            System.out.println("This scene has already wrapped. " + name + " cannot rehearse.");
+            return;
+        }
         // Increase rehearsal chip count, cannot have more rehearsal chips than budget
         if(rehearsalChips < set.getScene().getBudget() - 1) {
             rehearsalChips++;
             System.out.println(name + " rehearsed. Current rehearsal chips equal: " + rehearsalChips);
+            actionTaken = true;
         }
 
     }
@@ -193,7 +231,6 @@ public class Player {
         // set current values to base after day ends
         currentRole = null;
         rehearsalChips = 0;
-        hasMoved = false;
-
+        actionTaken = false;
     }
 }

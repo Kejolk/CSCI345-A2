@@ -77,10 +77,10 @@ public class Board {
         sceneList = new ArrayList<>();
         for (ParseXML.CardData card : cardList) {
             // creates Role objects for the scene
-            Role[] roles = new Role[card.roles.size()];
+            ArrayList<Role> roles = new ArrayList<>();
             for (int i = 0; i < card.roles.size(); i++) {
                 ParseXML.RoleData r = card.roles.get(i);
-                roles[i] = new Role(r.name, r.rank, r.onCard);
+                roles.add(new Role(r.name, r.rank, r.onCard));
                 
             }
 
@@ -172,14 +172,15 @@ public class Board {
     }
 
     public boolean isDayOver() {
-    for (Location loc : locations) {
-        if (loc instanceof SetLocation) {
-            SetLocation set = (SetLocation) loc;
-            if (!set.isSceneComplete()) {
-                return false;
+        for (Location loc : locations) {
+            if (loc instanceof SetLocation) {
+                SetLocation set = (SetLocation) loc;
+                if (!set.isSceneComplete()) {
+                    return false;
+                }
             }
         }
-    }
-    return true;
+        return true;
     }   
 }
+
