@@ -1,18 +1,21 @@
-## Getting Started
+## CSCI345 Assignment 2 
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+Authors: Sukhman Lally and Arvind Ramesh
 
-## Folder Structure
+This is a program created to replicate the game Deadwood (2011) through terminal usage
 
-The workspace contains two folders by default, where:
+## Installation Instructions
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+In order to install, please use any cloning technique you prefer, we recommend copying the https link at the top or 
+using the command 'git clone https://github.com/Kejolk/CSCI345-A2.git' in order to clone the program.
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+## Usage Instructions
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+In order to run the program, either click run on the IDE or use 'javac Deadwood.java' in order to compile the files
 
-## Dependency Management
+If you used the terminal command, once compiled run the program with 'java Deadwood.java' to get started with the game
 
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+It should ask you to enter the amount of players for the game (2-8 players) and then prompt you accordingly to play the game
+
+You can type in help at any point when starting the game in order to see what actions are able to occur during each players turn
+
