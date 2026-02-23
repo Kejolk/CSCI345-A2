@@ -24,7 +24,7 @@ public class Location {
         return name;
     }
 
-    public List<Location> getAdjacentLocations() {;
+    public List<Location> getAdjacentLocations() {
         return adjacentLocations;
 
     }
@@ -33,15 +33,9 @@ public class Location {
         return scene;
     }
 
-
     public void addAdjacentLocation(Location location) {
         if(location != null && !adjacentLocations.contains(location)) {
             adjacentLocations.add(location);
         }
     }
-
-    public static void main(String[] args) {
-        System.out.println("Testing for compile: Location");
-    }
-    
 }

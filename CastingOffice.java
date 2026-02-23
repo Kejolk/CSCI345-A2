@@ -4,7 +4,6 @@
 public class CastingOffice extends Location {
     private int[][] upgradeCosts; // [rank][money/credits]
 
-
     public CastingOffice(String name) {
         super(name);
 
@@ -28,39 +27,38 @@ public class CastingOffice extends Location {
      * if player location is at casting office and and has sufficent resources to upgrade, upgrade player
      * Can only upgrade once 
      */
-    public boolean upgradePlayer(Player player, int rank) { 
+    public void upgradePlayer(Player player, int rank, boolean useCredits) { 
         // validates player
         if (player == null) {
-            return false;
+            return;
             
         }
 
-        // validates rank range
-        if (rank <= 0 || rank >= upgradeCosts.length) {
-            return false;
-            
+        if(rank <= player.getRank()) {
+            System.out.println("You may only upgrade to a rank higher than your current one.");
+            return;
+        }
+        
+        int cost;
+        if(useCredits) {
+            cost = upgradeCosts[rank][1];
+        } else {
+            cost = upgradeCosts[rank][0];
         }
 
-        // get costs for requesated rank
-        int moneyCost = upgradeCosts[rank][0];
-        int creditCost = upgradeCosts[rank][1];
-
-        // check for upgrade with credits
-        if (player.upgradeRank(rank, creditCost, true)) {
+        if((useCredits && player.getCredits() >= cost)) {
+            player.addCredits(-cost);
+            player.setRank(rank);
             System.out.println(player.getName() + " upgraded to rank " + rank + " using credits.");
-            return true;
-            
-        }
-
-        // check for upgrading with money
-        if (player.upgradeRank(rank, moneyCost, false)) {
+            return;
+        } 
+        if(!useCredits && player.getMoney() >= cost) {
+            player.addMoney(-cost);
+            player.setRank(rank);
             System.out.println(player.getName() + " upgraded to rank " + rank + " using money.");
-            return true;
-            
+            return;
         }
 
-        // print if upgrade failed
-        System.out.println("Upgrade failed.");
-        return false; 
+        System.out.println("Upgrade failed due to insufficient amount of selected resource.");
     }
 }

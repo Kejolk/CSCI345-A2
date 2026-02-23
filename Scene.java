@@ -1,21 +1,18 @@
 // Created by Sukhman Lally
 // Implemented by Arvind Ramesh
-
+import java.util.*;
 public class Scene {
     private String title;
     private int budget;
-    private Role[] roles;
+    private ArrayList<Role> roles;
     private boolean isRevealed;
-    private boolean isComplete;
 
-    public Scene(String title, int budget, Role[] roles) {
+    public Scene(String title, int budget, ArrayList<Role> roles) {
         this.title = title;
         this.budget = budget;
         this.roles = roles;
         this.isRevealed = false;
-        this.isComplete = false;
     }
-
 
     public int getBudget() {
         return budget; 
@@ -25,7 +22,7 @@ public class Scene {
         return title;
     }
 
-    public Role[] getRoles() {
+    public ArrayList<Role> getRoles() {
         return roles;
     }
 
@@ -38,7 +35,6 @@ public class Scene {
      */
     public void reset() {
         isRevealed = false;
-        isComplete = false;
 
         if (roles != null) {
             for (Role role : roles) {
@@ -55,9 +51,5 @@ public class Scene {
     public void reveal() {
         isRevealed = true;
         System.out.println("Scene revealed: " + title);
-    }
-
-    public boolean isComplete() {
-        return isComplete; 
     }
 }

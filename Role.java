@@ -53,8 +53,4 @@ public class Role {
        return occupiedBy == null;
     }
 
-    public static void main(String[] args) {
-        System.out.println("Testing for compile: Role");
-    }
-
 }

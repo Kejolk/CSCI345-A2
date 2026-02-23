@@ -1,18 +1,13 @@
-// Created by Sukhman Lally
-// Implemented by Arvind Ramesh
-
+// Implemented by Arvind and Sukhman
 import java.util.*;
-
-
 public class Board {
     private Location[] locations;
-
+    private List<Scene> sceneList;
 
     // Getters
     public Location[] getLocations() {
         return locations;
     }
-
 
     /**
      * Creates new board with current test locations for implementation purposes
@@ -36,14 +31,21 @@ public class Board {
             // if location is CastingOffice create special subclass
             if (data.isCastingOffice) {
                 loc = new CastingOffice(data.name);
-                
-            } else {
+            } else if(data.isTrailer) { //or is trailer
                 loc = new Location(data.name);
+            } else {
+                SetLocation set = new SetLocation(data.name, data.shotsRemaining);
+                ArrayList<Role> roleList = new ArrayList<>();
+                for (ParseXML.RoleData r : data.roles) {
+                    roleList.add(new Role(r.name, r.rank, false));
+                }
+
+                set.setRole(roleList);
+                loc = set;
             }
 
             // store location in map
             locationMap.put(data.name, loc);
-
 
         }
 
@@ -67,20 +69,18 @@ public class Board {
         // convert map into array for easier use
         locations = locationMap.values().toArray(new Location[0]);
 
-
         // copy card list and shuffle
         List<ParseXML.CardData> cardList = new ArrayList<>(parser.getCards());
         Collections.shuffle(cardList);
 
-        List<Scene> sceneList = new ArrayList<>();
-
         // converts carddata into scene object
+        sceneList = new ArrayList<>();
         for (ParseXML.CardData card : cardList) {
             // creates Role objects for the scene
-            Role[] roles = new Role[card.roles.size()];
+            ArrayList<Role> roles = new ArrayList<>();
             for (int i = 0; i < card.roles.size(); i++) {
                 ParseXML.RoleData r = card.roles.get(i);
-                roles[i] = new Role(r.name, r.rank, r.onCard);
+                roles.add(new Role(r.name, r.rank, r.onCard));
                 
             }
 
@@ -90,26 +90,29 @@ public class Board {
             
         }
 
+        Collections.shuffle(sceneList); // shuffles the scenes
+        
 
-        // Assign scenes to valid locations
-        int sceneIndex = 0;
+    }
 
-        for (ParseXML.LocationData data : parser.getLocations()) {
-            // only assign scenes to regular locations
-            if (!data.isTrailer && !data.isCastingOffice) {
-                Location loc = locationMap.get(data.name);
+    public void assignScenesForDay(int day) {
+        int startIndex = (day - 1) * 10;
 
-                // make sure we dont exceed available scenes
-                if (sceneIndex < sceneList.size()) {
-                    loc.setScene(sceneList.get(sceneIndex));
-                    sceneIndex++;
-                    
-                }
-                
+        List<Scene> dayScenes = sceneList.subList(startIndex, startIndex + 10);
+
+        int counter = 0;
+        for (Location loc : locations) {
+            if (loc instanceof SetLocation) {
+                SetLocation set = (SetLocation) loc;
+
+                // Remove players and reset shots
+                set.wrapScene();
+                set.resetShots();
+
+            set.setScene(dayScenes.get(counter));
+            counter++;
             }
-            
         }
-
     }
 
     /**
@@ -135,7 +138,6 @@ public class Board {
          
     }
 
-
     /**
      * Resets all scenes for next/new day
      */
@@ -144,14 +146,16 @@ public class Board {
             return;
             
         }
-
+ 
         for (Location loc : locations) {
             if (loc.getScene() != null) {
                 loc.getScene().reset();
-                
+                if (loc instanceof SetLocation) {
+                    ((SetLocation) loc).resetShots();
+                }
             }
-            
         }
+
     }
 
     /**
@@ -163,9 +167,20 @@ public class Board {
     public boolean isAdjacent(Location location1, Location location2) {
         if (location1 == null || location2 == null) {
             return false;
-            
         }
         return location1.getAdjacentLocations().contains(location2); 
-        }
+    }
 
+    public boolean isDayOver() {
+        for (Location loc : locations) {
+            if (loc instanceof SetLocation) {
+                SetLocation set = (SetLocation) loc;
+                if (!set.isSceneComplete()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }   
 }
+
