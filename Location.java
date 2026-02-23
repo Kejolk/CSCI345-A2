@@ -24,7 +24,7 @@ public class Location {
         return name;
     }
 
-    public List<Location> getAdjacentLocations() {;
+    public List<Location> getAdjacentLocations() {
         return adjacentLocations;
 
     }

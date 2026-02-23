@@ -159,7 +159,7 @@ public class GameManager {
             System.out.println("There is no available role on this set.");
         } else {
             String roleType;
-            System.out.println("These are the avaiable roles");
+            System.out.println("These are the available roles");
             for (int i = 0; i < availableRoles.size(); i++) {
                 Role r = availableRoles.get(i);
                 if(r.isOnCard()) {
