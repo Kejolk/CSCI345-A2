@@ -30,17 +30,24 @@ public class Board {
 
             // if location is CastingOffice create special subclass
             if (data.isCastingOffice) {
-                loc = new CastingOffice(data.name);
+                loc = new CastingOffice(data.name, data.coords.x, data.coords.y, data.coords.h, data.coords.w);
             } else if(data.isTrailer) { //or is trailer
-                loc = new Location(data.name);
+                loc = new Location(data.name, data.coords.x, data.coords.y, data.coords.h, data.coords.w);
             } else {
-                SetLocation set = new SetLocation(data.name, data.shotsRemaining);
+                SetLocation set = new SetLocation(data.name, data.shotsRemaining, data.coords.x, data.coords.y, data.coords.h, data.coords.w);
+
                 ArrayList<Role> roleList = new ArrayList<>();
                 for (ParseXML.RoleData r : data.roles) {
-                    roleList.add(new Role(r.name, r.rank, false));
+                    roleList.add(new Role(r.name, r.rank, false, r.coords.x, r.coords.y, r.coords.h, r.coords.w));
                 }
 
                 set.setRole(roleList);
+
+                List<ShotMarkers> shots = new ArrayList<>();
+                for (ParseXML.ShotsData s : data.shots) {
+                    shots.add(new ShotMarkers(s.shotNumber, s.coords.x, s.coords.y, s.coords.h, s.coords.w));
+                }
+                set.setShots(shots);
                 loc = set;
             }
 
@@ -59,6 +66,9 @@ public class Board {
                 if (neighbor != null) {
                     curr.addAdjacentLocation(neighbor);
                     
+                    if(!neighbor.getAdjacentLocations().contains(curr)) { // fixes issue of Trailer & CastingOffice not added as neighbors
+                        neighbor.addAdjacentLocation(curr);
+                    }
                 }
 
                 
@@ -80,12 +90,12 @@ public class Board {
             ArrayList<Role> roles = new ArrayList<>();
             for (int i = 0; i < card.roles.size(); i++) {
                 ParseXML.RoleData r = card.roles.get(i);
-                roles.add(new Role(r.name, r.rank, r.onCard));
+                roles.add(new Role(r.name, r.rank, r.onCard, r.coords.x, r.coords.y, r.coords.h, r.coords.w));
                 
             }
 
             // create scene and add to scene list
-            Scene scene = new Scene(card.name, card.budget, roles);
+            Scene scene = new Scene(card.name, card.budget, roles, card.image);
             sceneList.add(scene);
             
         }
@@ -95,8 +105,8 @@ public class Board {
 
     }
 
-    public void assignScenesForDay(int day) {
-        int startIndex = (day - 1) * 10;
+    public void assignScenesForDay(int day) { // places scene cards on each set
+        int startIndex = (day - 1) * 10; // 10 sets, keeps count of how many scenes have been used
 
         List<Scene> dayScenes = sceneList.subList(startIndex, startIndex + 10);
 
@@ -171,16 +181,17 @@ public class Board {
         return location1.getAdjacentLocations().contains(location2); 
     }
 
-    public boolean isDayOver() {
+    public boolean isDayOver() { // checks if day is over (conditioned on only 1 scene active)
+        int remainingScenes = 0;
         for (Location loc : locations) {
             if (loc instanceof SetLocation) {
                 SetLocation set = (SetLocation) loc;
                 if (!set.isSceneComplete()) {
-                    return false;
+                    remainingScenes++;
                 }
             }
         }
-        return true;
+        return remainingScenes <= 1; // if 1 scene remains, day is over
     }   
 }
 

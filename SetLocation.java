@@ -8,10 +8,16 @@ public class SetLocation extends Location {
     private int shotsRemaining;
     private int initialShots;
 
-    public SetLocation(String name, int shotsRemaining) {
-        super(name);
+    private List<ShotMarkers> shots = new ArrayList<>();
+
+    public SetLocation(String name, int shotsRemaining, int x, int y, int h, int w) {
+        super(name, x, y, h, w);
         this.shotsRemaining = shotsRemaining;
         this.initialShots = shotsRemaining;
+    }
+
+    public void setShots(List<ShotMarkers> shots) {
+        this.shots = shots;
     }
 
     public int getShotsRemaining() {
@@ -38,15 +44,15 @@ public class SetLocation extends Location {
         shotsRemaining = shots;
     }
 
-    public void revealScene() {
+    public void revealScene() { 
         if(scene != null) {
             scene.reveal();
         }
     }
     public void removeShot() {
-        if(shotsRemaining > 0) {
+        if(shotsRemaining > 0) { // deincrements shots remaining as long as greater than 0
             shotsRemaining--;
-            if(shotsRemaining == 0) {
+            if(shotsRemaining == 0) { // ends scene if no shots remainng
                 wrapScene();
             }
         }
@@ -62,23 +68,23 @@ public class SetLocation extends Location {
 
         bonuses();
 
-        for(Role role : roles) {
+        for(Role role : roles) { // remove all players from off-card roles
             role.removePlayer();
         }
 
-        for(Role role : scene.getRoles()) {
+        for(Role role : scene.getRoles()) { // remove all players from on-card roles
             role.removePlayer();
         }
 
     }
 
-    public void bonuses() {
+    public void bonuses() { // pays out bonuses after scene is wrapped
         if (scene == null) {
             return;
         }
 
         ArrayList<Role> sceneRoles = new ArrayList<>();
-        for(Role role : scene.getRoles()) {
+        for(Role role : scene.getRoles()) { // gets roles from scene card
             sceneRoles.add(role);
         }
 

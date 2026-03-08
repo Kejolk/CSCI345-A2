@@ -1,3 +1,4 @@
+// Implented by Sukhman
 import java.util.*;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
@@ -9,7 +10,7 @@ import java.io.File;
 
 public class ParseXML {
 
-    static class LocationData {
+    static class LocationData { // store location data
         String name;
         List<String> neighbors = new ArrayList<>();
 
@@ -17,22 +18,38 @@ public class ParseXML {
         boolean isCastingOffice = false;
 
         int shotsRemaining;
+        CoordinatesData coords;
+        List<ShotsData> shots = new ArrayList<>();
 
         List<RoleData> roles = new ArrayList<>();
         int[][] upgradeCosts;
     }
 
-    static class CardData {
+    static class CardData { // stores scene card data
         String name;
         int budget;
         int sceneNumber;
+        String image;
         List<RoleData> roles = new ArrayList<>();
     }
 
-    static class RoleData {
+    static class RoleData { // stores role data
         String name;
         int rank;
         boolean onCard;
+        CoordinatesData coords;
+    }
+
+    static class CoordinatesData { // stores coordinate data
+        int x;
+        int y;
+        int h;
+        int w;
+    }
+
+    static class ShotsData{
+        int shotNumber;
+        CoordinatesData coords;
     }
     
     private Map<String, LocationData> locations = new HashMap<>();
@@ -47,7 +64,7 @@ public class ParseXML {
     }
 
 
-    public void readBoardData(String filename) {
+    public void readBoardData(String filename) { // reads and stores info from Board xml file
         locations.clear(); // in case this method ends up getting called multiple times, although it shouldn't
 
         try {
@@ -63,12 +80,45 @@ public class ParseXML {
                 LocationData location = new LocationData();
                 location.name = set.getAttribute("name");
               
-                NodeList neighbors = set.getElementsByTagName("neighbor");
+                NodeList neighbors = set.getElementsByTagName("neighbor"); // grab neighbors
                 for (int j = 0; j < neighbors.getLength(); j++) {
                     location.neighbors.add(((Element) neighbors.item(j)).getAttribute("name"));
                 }
 
-                location.shotsRemaining = set.getElementsByTagName("take").getLength();
+                NodeList locationCoords = set.getElementsByTagName("area");
+                if(locationCoords.getLength() > 0) {
+                    Element coordsElement = (Element) locationCoords.item(0);
+
+                    CoordinatesData coordsdata = new CoordinatesData();
+                    coordsdata.x = Integer.parseInt(coordsElement.getAttribute("x"));
+                    coordsdata.y = Integer.parseInt(coordsElement.getAttribute("y"));
+                    coordsdata.h = Integer.parseInt(coordsElement.getAttribute("h"));
+                    coordsdata.w = Integer.parseInt(coordsElement.getAttribute("w"));
+
+                    location.coords = coordsdata;
+                }
+
+                NodeList shots = set.getElementsByTagName("take");
+                for (int j = 0; j < shots.getLength(); j++) {
+                    Element takeElem = (Element) shots.item(j);
+
+                    ShotsData take = new ShotsData();
+                    take.shotNumber = Integer.parseInt(takeElem.getAttribute("number"));
+
+                    Element areaElem = (Element) takeElem.getElementsByTagName("area").item(0);
+
+                    CoordinatesData coordsData = new CoordinatesData();
+                    coordsData.x = Integer.parseInt(areaElem.getAttribute("x"));
+                    coordsData.y = Integer.parseInt(areaElem.getAttribute("y"));
+                    coordsData.h = Integer.parseInt(areaElem.getAttribute("h"));
+                    coordsData.w = Integer.parseInt(areaElem.getAttribute("w"));
+
+                    take.coords = coordsData;
+
+                    location.shots.add(take);
+                }
+
+                location.shotsRemaining = location.shots.size();
 
                 NodeList roles = set.getElementsByTagName("part");
                 for (int j = 0; j < roles.getLength(); j++) {
@@ -78,6 +128,20 @@ public class ParseXML {
                     role.name = rolesElement.getAttribute("name");
                     role.rank = Integer.parseInt(rolesElement.getAttribute("level")); // parseInt converts the string to int
                     role.onCard = false; // these are off the board
+
+                    NodeList roleCoords = rolesElement.getElementsByTagName("area");
+                    if (roleCoords.getLength() > 0) {
+                        Element coordsElem = (Element) roleCoords.item(0);
+
+                        CoordinatesData coords = new CoordinatesData();
+                        coords.x = Integer.parseInt(coordsElem.getAttribute("x"));
+                        coords.y = Integer.parseInt(coordsElem.getAttribute("y"));
+                        coords.h = Integer.parseInt(coordsElem.getAttribute("h"));
+                        coords.w = Integer.parseInt(coordsElem.getAttribute("w"));
+
+                        role.coords = coords; // assign coords to role
+                    }
+
 
                     location.roles.add(role);
                 }
@@ -96,6 +160,15 @@ public class ParseXML {
                 trailerLoc.neighbors.add(((Element) trailerNeighbors.item(i)).getAttribute("name"));
             }
 
+            NodeList trailerCoords = trailer.getElementsByTagName("area");
+            trailerLoc.coords = new CoordinatesData();
+            if(trailerCoords.getLength() > 0) {
+                Element coords = (Element) trailerCoords.item(0);
+                trailerLoc.coords.x = Integer.parseInt(coords.getAttribute("x"));
+                trailerLoc.coords.y = Integer.parseInt(coords.getAttribute("y"));
+                trailerLoc.coords.h = Integer.parseInt(coords.getAttribute("h"));
+                trailerLoc.coords.w = Integer.parseInt(coords.getAttribute("w"));
+            }
             locations.put(trailerLoc.name, trailerLoc);
 
             // castingOffice information (doesn't have role data but has upgradeData)
@@ -110,6 +183,16 @@ public class ParseXML {
                 officeLoc.neighbors.add(
                     ((Element) officeNeighbors.item(i)).getAttribute("name")
                 );
+            }
+
+            NodeList officeCoords = office.getElementsByTagName("area");
+            officeLoc.coords = new CoordinatesData();
+            if(officeCoords.getLength() > 0) {
+                Element coords = (Element) officeCoords.item(0);
+                officeLoc.coords.x = Integer.parseInt(coords.getAttribute("x"));
+                officeLoc.coords.y = Integer.parseInt(coords.getAttribute("y"));
+                officeLoc.coords.h = Integer.parseInt(coords.getAttribute("h"));
+                officeLoc.coords.w = Integer.parseInt(coords.getAttribute("w"));
             }
 
             NodeList upgrades = office.getElementsByTagName("upgrade");
@@ -133,7 +216,7 @@ public class ParseXML {
         }
     }
 
-    public void readCardData(String filename) {
+    public void readCardData(String filename) { // read information from card xml file
         cards.clear();
 
         try {
@@ -148,6 +231,7 @@ public class ParseXML {
 
                 CardData card = new CardData();
                 card.name = cardElement.getAttribute("name");
+                card.image = cardElement.getAttribute("img");
                 card.budget = Integer.parseInt(cardElement.getAttribute("budget"));
 
                 NodeList sceneNodes = cardElement.getElementsByTagName("scene");
@@ -162,6 +246,16 @@ public class ParseXML {
                     role.name = rolesElement.getAttribute("name");
                     role.rank = Integer.parseInt(rolesElement.getAttribute("level"));
                     role.onCard = true; // on card
+
+                    Element coordsElement = (Element) rolesElement.getElementsByTagName("area").item(0);
+                    if(coordsElement != null) {
+                        CoordinatesData coordsData = new CoordinatesData();
+                        coordsData.x = Integer.parseInt(coordsElement.getAttribute("x"));
+                        coordsData.y = Integer.parseInt(coordsElement.getAttribute("y"));
+                        coordsData.h = Integer.parseInt(coordsElement.getAttribute("h"));
+                        coordsData.w = Integer.parseInt(coordsElement.getAttribute("w"));    
+                        role.coords = coordsData;
+                    }
 
                     card.roles.add(role);
                 }

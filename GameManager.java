@@ -1,5 +1,4 @@
-// Created by Sukhman Lally
-// Implemented by Arvind Ramesh
+// Implemented by Sukhman Lally
 
 import java.util.*;
 
@@ -52,7 +51,7 @@ public class GameManager {
         }
     }
 
-    public void startDay() {
+    public void startDay() { // starts each day, resets player location to trailer, clears board, and puts new scenes
         System.out.println("Day " + currentDay + " begins.");
 
         board.resetScene();
@@ -65,7 +64,7 @@ public class GameManager {
 
     }
 
-    public void gameLoop() {
+    public void gameLoop() { // game loop, manages player actions
         while (gameRunning) {
             Player currentPlayer = players.get(currentPlayerIndex);
             System.out.println("It is " + currentPlayer.getName() + "'s turn.");
@@ -105,6 +104,7 @@ public class GameManager {
                         break;
                     case "endgame":
                         System.out.println("Ending the game.");
+                        calcFinalScore();
                         turnComplete = true;
                         gameRunning = false;
                         break;
@@ -113,10 +113,9 @@ public class GameManager {
                         break;
                 }
 
-                if (board.isDayOver()) {
+                if (board.isDayOver()) { // checks if the current day is over
                     System.out.println("All scenes are now complete. Day " + currentDay + " is over!");
                     endDay();
-                    return;
                 }
             }
 
@@ -124,6 +123,7 @@ public class GameManager {
         }
     }
 
+    // prints adjacent locations and lets player pick one, then calls Player class move to that location
     private void manageMove(Player player) { // needs a manager to handle inputs
         Location loc = player.getLocation();
         List<Location> adj = loc.getAdjacentLocations();
@@ -143,6 +143,7 @@ public class GameManager {
         player.move(target);
     }
 
+    // Prints out available roles at location, handles player input, and calls Player class take role
     public void manageTakeRole(Player player) {
         Location loc = player.getLocation();
 
@@ -177,6 +178,7 @@ public class GameManager {
         }
     }
 
+    // Prints out rank upgrade costs, manages player inputs, and calls CastingOffice upgrade player class
     private void manageUpgrade(Player player) {
         Location loc = board.getLocation("Casting Office");
     
@@ -206,18 +208,19 @@ public class GameManager {
         currentDay++;
 
         if (currentDay > maxDays) {
-            gameRunning = false;
+            gameRunning = false; // end the game, call to calculate final scores
             calcFinalScore();
             
         } else {
-            startDay();
+            startDay(); // else start a new day
         }
     }
 
-    public void nextTurn() {
+    public void nextTurn() { // next players turn
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size(); // the modulus will cause it to go from last player -> first player
     }
 
+    // Determines winner and prints who they are and their score
     public void calcFinalScore() {
         System.out.println("Game over! Calculating final scores:");
 
@@ -262,7 +265,7 @@ public class GameManager {
     }
 }
 
-    public void playerInfo(Player currentPlayer) {
+    public void playerInfo(Player currentPlayer) { // prints all of current player's info
         System.out.print(currentPlayer.getName() + " | Rank: " + currentPlayer.getRank()
             + " | Money: " + currentPlayer.getMoney() + " | Credits: " + currentPlayer.getCredits());
         if (currentPlayer.getRole() != null) { //prints role only if player has one
@@ -271,7 +274,7 @@ public class GameManager {
         System.out.println();
     }
 
-    public void helpPrint() {
+    public void helpPrint() { // list of valid commands
         System.out.println("These are a list of valid commands:");
         System.out.println("move  - Move to an adjacent location");
         System.out.println("role  - Take a role if on a set");

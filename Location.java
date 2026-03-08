@@ -10,12 +10,31 @@ public class Location {
     private String name;
     private List<Location> adjacentLocations; 
     private Scene scene;
-    
-    public Location(String name) {
+
+    protected int x, y, h, w;
+
+    public Location(String name, int x, int y, int h, int w) {
         this.name = name;
         this.adjacentLocations = new ArrayList<>();
+        this.x = x;
+        this.y = y;
+        this.h = h;
+        this.w = w;
     }
 
+    public int getX() { 
+        return x; 
+    }
+    public int getY() {
+         return y; 
+    }
+    public int getH() { 
+        return h; 
+    }
+    public int getW() {
+         return w;
+    }
+    
     public void setScene(Scene scene) {
         this.scene = scene;
     }
@@ -33,7 +52,7 @@ public class Location {
         return scene;
     }
 
-    public void addAdjacentLocation(Location location) {
+    public void addAdjacentLocation(Location location) { // addsadjacent locations to this locations list
         if(location != null && !adjacentLocations.contains(location)) {
             adjacentLocations.add(location);
         }
