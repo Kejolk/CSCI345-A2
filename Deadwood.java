@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 public class Deadwood {
     private static int numPlayers = 0;
+    // Main class - get number of players and starts game loop
     public static void main(String[] args) throws Exception {
         Scanner scan = new Scanner(System.in);
         while(numPlayers < 2 || numPlayers > 8) {

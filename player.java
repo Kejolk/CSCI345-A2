@@ -1,5 +1,6 @@
 // Defines the Player class
 // Created by Arvind Ramesh
+// Implemented by Sukhman
 
 public class Player {
     private String name;
@@ -91,10 +92,10 @@ public class Player {
         System.out.println(name + " has moved to " + newLocation.getName());
         actionTaken = true;
 
-        if(newLocation instanceof SetLocation) {
+        if(newLocation instanceof SetLocation) { // reveals scene if on set with unreavealed scene
             SetLocation set = (SetLocation) newLocation;
             if(set.getScene() != null && !set.getScene().isRevealed()) {
-                set.revealScene();
+                set.revealScene(); 
             }
         }
     }

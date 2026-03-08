@@ -1,8 +1,9 @@
+// Implemented by Arvind and Sukhman
 public class CastingOffice extends Location {
     private int[][] upgradeCosts; // [rank][money/credits]
 
-    public CastingOffice(String name) {
-        super(name);
+    public CastingOffice(String name, int x, int y, int h, int w) {
+        super(name, x, y, h, w);
 
         upgradeCosts = new int[][] {
             // ranks 0-6
@@ -28,28 +29,32 @@ public class CastingOffice extends Location {
         // validates player
         if (player == null) {
             return;
-            
+        }
+        Location location = player.getLocation();
+        if(!(location instanceof CastingOffice)) {
+            System.out.println(player.getName() + " is not at the Casting Office.");
+            return;
         }
 
-        if(rank <= player.getRank()) {
+        if(rank <= player.getRank()) { // to avoid player upgrading to rank equal or lower than current
             System.out.println("You may only upgrade to a rank higher than your current one.");
             return;
         }
         
         int cost;
-        if(useCredits) {
+        if(useCredits) { // cost is determined based on user choice of credits or money
             cost = upgradeCosts[rank][1];
         } else {
             cost = upgradeCosts[rank][0];
         }
 
-        if((useCredits && player.getCredits() >= cost)) {
+        if((useCredits && player.getCredits() >= cost)) { // if player chooses to use credits & can afford upgrade
             player.addCredits(-cost);
             player.setRank(rank);
             System.out.println(player.getName() + " upgraded to rank " + rank + " using credits.");
             return;
         } 
-        if(!useCredits && player.getMoney() >= cost) {
+        if(!useCredits && player.getMoney() >= cost) { // if player chooses money & can afford upgrade
             player.addMoney(-cost);
             player.setRank(rank);
             System.out.println(player.getName() + " upgraded to rank " + rank + " using money.");

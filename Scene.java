@@ -6,11 +6,13 @@ public class Scene {
     private int budget;
     private ArrayList<Role> roles;
     private boolean isRevealed;
+    private String image;
 
-    public Scene(String title, int budget, ArrayList<Role> roles) {
+    public Scene(String title, int budget, ArrayList<Role> roles, String image) {
         this.title = title;
         this.budget = budget;
         this.roles = roles;
+        this.image = image;
         this.isRevealed = false;
     }
 
@@ -26,14 +28,18 @@ public class Scene {
         return roles;
     }
 
+    public String getImage() {
+        return image;
+    }
     public boolean isRevealed() {
         return isRevealed;
     }
 
+
     /**
      * Resets scene for a new day
      */
-    public void reset() {
+    public void reset() { 
         isRevealed = false;
 
         if (roles != null) {
@@ -48,7 +54,7 @@ public class Scene {
 
     }
 
-    public void reveal() {
+    public void reveal() { // reveals scene 
         isRevealed = true;
         System.out.println("Scene revealed: " + title);
     }
