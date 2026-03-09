@@ -2,6 +2,7 @@
 // Authors: Sukhman Lally, Arvind Ramesh
 // Purpose: Main starting method for game 
 import java.util.Scanner;
+import javax.swing.JOptionPane;
 
 public class Deadwood {
     private static int numPlayers = 0;
@@ -9,14 +10,26 @@ public class Deadwood {
     public static void main(String[] args) throws Exception {
         Scanner scan = new Scanner(System.in);
         while(numPlayers < 2 || numPlayers > 8) {
-            System.out.println("Please input the number of players (2-8).");
-            String numPlayersString = scan.nextLine();
-            numPlayers = Integer.parseInt(numPlayersString);
+            String input = JOptionPane.showInputDialog("Enter number of players (2-8):");
+
+            if (input == null) {
+                System.exit(0);
+            }
+
+            numPlayers = Integer.parseInt(input);
+
             if(numPlayers < 2 || numPlayers > 8) {
-                System.out.println("You have inputted an invalid number of players.");
+                JOptionPane.showMessageDialog(null, "Invalid number of players");
             }
         }
-        GameManager game = new GameManager(numPlayers);
+
+        // Added Connection to GUI 
+        BoardLayersListener board = new BoardLayersListener(null);
+        GameManager game = new GameManager(numPlayers, board);
+        board.game = game;
+
+        board.setVisible(true);
+
         game.startGame();
     }
 }

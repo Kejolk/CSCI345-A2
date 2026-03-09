@@ -1,6 +1,7 @@
 // Implemented by Sukhman Lally
 
 import java.util.*;
+import javax.swing.JOptionPane;
 
 public class GameManager {
     
@@ -12,14 +13,17 @@ public class GameManager {
     private boolean gameRunning = true;
     private Scanner scan = new Scanner(System.in);
     private int numPlayers;
+    private BoardLayersListener gui;
 
-    public GameManager(int numPlayers) {
+
+    public GameManager(int numPlayers, BoardLayersListener gui) {
         this.numPlayers = numPlayers;
         if(numPlayers <= 3) { // setting up game rules based on number of players
             maxDays = 3;
         } else {
             maxDays = 4;
-        }   
+        }
+        this.gui = gui;
     }
 
     /**
@@ -34,10 +38,21 @@ public class GameManager {
 
     public void setupPlayers() {
         for (int i = 1; i <= numPlayers; i++) {
-            System.out.println("Enter name for player " + i + ":");
-            String name = scan.nextLine();
-            Player player = new Player(name);
 
+            // Changed to use UI to ask for players
+            String name = JOptionPane.showInputDialog(
+                null,
+                "Enter name for Player " + i + ";"
+            );
+
+            // in case user leaves blank name
+            if (name == null || name.trim().isEmpty()) {
+                name = "Player " + i;
+                
+            }
+
+            Player player = new Player(name);
+    
             if (numPlayers == 5) { // adjust resources based on number of players
                 player.addCredits(2);
             }                           
@@ -286,5 +301,32 @@ public class GameManager {
         System.out.println("where  - Show your current location");
         System.out.println("help  - Show this list of commands");
         System.out.println("endgame  - End the game immediately");
+    }
+
+    // Controller methods for GUI usage
+    public void actCurrentPlayer() {
+        Player p = players.get(currentPlayerIndex);
+        p.act();
+    }
+
+    public void rehearseCurrentPlayer() {
+        Player p = players.get(currentPlayerIndex);
+        p.rehearse();
+    }
+
+    public void moveCurrentPlayer() {
+        Player p = players.get(currentPlayerIndex);
+        manageMove(p);
+    }
+
+    public void upgradeCurrentPlayer() {
+        Player p = players.get(currentPlayerIndex);
+        manageUpgrade(p);
+    }
+
+    public void endTurn() {
+        Player p = players.get(currentPlayerIndex);
+        p.setActionTaken(false);
+        nextTurn();
     }
 }
