@@ -34,7 +34,7 @@ public class Location {
     public int getW() {
          return w;
     }
-    
+
     public void setScene(Scene scene) {
         this.scene = scene;
     }

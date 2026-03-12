@@ -18,6 +18,13 @@ public class Player {
 
     // Methods
 
+    public boolean getActionTaken() {
+        return actionTaken;
+    }
+
+    public int getChips() {
+        return rehearsalChips;
+    }
     public String getName() {
         return name;
     }
@@ -91,13 +98,6 @@ public class Player {
 
         System.out.println(name + " has moved to " + newLocation.getName());
         actionTaken = true;
-
-        if(newLocation instanceof SetLocation) { // reveals scene if on set with unreavealed scene
-            SetLocation set = (SetLocation) newLocation;
-            if(set.getScene() != null && !set.getScene().isRevealed()) {
-                set.revealScene(); 
-            }
-        }
     }
 
     /**

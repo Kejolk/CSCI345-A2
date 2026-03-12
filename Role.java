@@ -23,6 +23,22 @@ public class Role {
         this.w = w;
     }
 
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getH() {
+        return h;
+    }
+
+    public int getW() {
+        return w;
+    }
+    
     public String getName() {
         return name;
     }

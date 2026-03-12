@@ -12,7 +12,10 @@ import javax.swing.*;
 import javax.imageio.ImageIO;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
+import javax.swing.table.DefaultTableModel;
 
 public class BoardLayersListener extends JFrame {
 // Game manager object
@@ -40,8 +43,19 @@ JLayeredPane bPane;
 
 // Player Info things
 JPanel playerPanel;
-JLabel[] playerInfoLabels;
+JTable playerTable;
+DefaultTableModel playerTableModel;
 List<JLabel> playerDice = new ArrayList<>();
+
+Map<SetLocation, JLabel> sceneCardLabels = new HashMap<>();
+
+// Role drop box
+JComboBox<String> roleDropdown;
+JButton takeRoleButton;
+JButton denyRoleButton;
+
+private double scaleX = 0.75; // how we've scaled everything to fit
+private double scaleY = 0.75;
 
 private static final Color ENABLED_COLOR = Color.white;
 private static final Color DISABLED_COLOR = new Color(200,200,200);
@@ -65,14 +79,18 @@ public BoardLayersListener(GameManager game) {
       // Create the deadwood board
       boardlabel = new JLabel();
       ImageIcon icon =  new ImageIcon("images/board.jpg");
+      Image img = icon.getImage();
+      int scaledWidth = icon.getIconWidth() * 3 / 4; // scaling board
+      int scaledHeight = icon.getIconHeight() * 3 / 4;
+
+      Image scaledImg = img.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
+      icon = new ImageIcon(scaledImg);
       boardlabel.setIcon(icon); 
-      boardlabel.setBounds(0,0,icon.getIconWidth(),icon.getIconHeight());
+      boardlabel.setBounds(0,0,scaledWidth,scaledHeight);
    
       // Add the board to the lowest layer
       bPane.add(boardlabel, 0);
    
-      // Set the size of the GUI
-      setSize(icon.getIconWidth()+500,icon.getIconHeight()+300);
       
       // Add a scene card to this room
       cardlabel = new JLabel();
@@ -91,18 +109,20 @@ public BoardLayersListener(GameManager game) {
       ImageIcon pIcon = new ImageIcon("images/Dice/r2.png");
       playerlabel.setIcon(pIcon);
       //playerlabel.setBounds(114,227,pIcon.getIconWidth(),pIcon.getIconHeight());  
-      playerlabel.setBounds(114,227,46,46);
+      playerlabel.setBounds(114,227,46,46);// Set the size of the GUI
+      setPreferredSize(new Dimension(icon.getIconWidth() + 250, icon.getIconHeight() + 120));
+      pack();
       playerlabel.setVisible(false);
       bPane.add(playerlabel, DICE_LAYER);
    
       // Create the Menu for action buttons
       mLabel = new JLabel("MENU");
-      mLabel.setBounds(icon.getIconWidth()+40,0,100,20);
+      mLabel.setBounds(scaledWidth+40,0,100,20);
       bPane.add(mLabel,UI_LAYER);
 
       // Create output to show on the board instead of console
       messageLabel = new JLabel("Welcome to Deadwood!");
-      messageLabel.setBounds(icon.getIconWidth() + 10, 525, 500, 40);
+      messageLabel.setBounds(scaledWidth + 10, 525, 500, 40);
       messageLabel.setForeground(Color.BLACK);
       messageLabel.setFont(new Font("Arial", Font.BOLD, 18));
 
@@ -111,44 +131,49 @@ public BoardLayersListener(GameManager game) {
       // Create Action buttons
       bAct = new JButton("ACT");
       bAct.setBackground(Color.white);
-      bAct.setBounds(icon.getIconWidth()+10,230,100, 100);
+      bAct.setBounds(scaledWidth+10,230,100, 100);
       bAct.addMouseListener(new boardMouseListener());
 
       bMove = new JButton("MOVE");
       bMove.setBackground(Color.white);
-      bMove.setBounds(icon.getIconWidth()+10, 30,100, 100);
+      bMove.setBounds(scaledWidth+10, 30,100, 100);
       bMove.addMouseListener(new boardMouseListener());
       
       bRehearse = new JButton("REHEARSE");
       bRehearse.setBackground(Color.white);
-      bRehearse.setBounds(icon.getIconWidth()+10,130,100, 100);
+      bRehearse.setBounds(scaledWidth+10,130,100, 100);
       bRehearse.addMouseListener(new boardMouseListener());
       
       bUpgrade = new JButton("UPGRADE");
       bUpgrade.setEnabled(false);
       bUpgrade.setToolTipText("Upgrade rank at Casting Office");
       bUpgrade.setBackground(new Color(200,200,200));
-      bUpgrade.setBounds(icon.getIconWidth()+10,330,100, 100);
+      bUpgrade.setBounds(scaledWidth+10,330,100, 100);
       bUpgrade.addMouseListener(new boardMouseListener());
 
       bEndTurn = new JButton("END TURN");
       bEndTurn.setBackground(Color.white);
-      bEndTurn.setBounds(icon.getIconWidth()+10,430,100, 100);
+      bEndTurn.setBounds(scaledWidth+10,430,100, 100);
       bEndTurn.addMouseListener(new boardMouseListener());
 
       // Create Player info area
       playerPanel = new JPanel();
-      playerPanel.setLayout(new GridLayout(8,1));
-      playerPanel.setBounds(icon.getIconWidth()+150, 50, 300, 300);
+      playerPanel.setLayout(new BorderLayout());
+      playerPanel.setBounds(20, scaledHeight + 10, scaledWidth - 40, 150);
       playerPanel.setBorder(BorderFactory.createTitledBorder("Players"));
 
-      playerInfoLabels = new JLabel[8];
+      String[] columns = {"Player","Rank","Money","Credits","Chips","Role"};
 
-      for (int i = 0; i < 8; i++) {
-         playerInfoLabels[i] = new JLabel("");
-         playerPanel.add(playerInfoLabels[i]);
-         
-      }
+      playerTableModel = new DefaultTableModel(columns,0);
+
+      playerTable = new JTable(playerTableModel);
+      playerTable.setRowHeight(22);
+      playerTable.setEnabled(false);
+      playerTable.getTableHeader().setReorderingAllowed(false);
+
+      JScrollPane scrollPane = new JScrollPane(playerTable);
+
+      playerPanel.add(scrollPane, BorderLayout.CENTER);
       bPane.add(playerPanel, UI_LAYER);
 
       // Place the action buttons in the top layer
@@ -157,6 +182,11 @@ public BoardLayersListener(GameManager game) {
       bPane.add(bRehearse, UI_LAYER);
       bPane.add(bUpgrade, UI_LAYER);
       bPane.add(bEndTurn, UI_LAYER);
+
+      // Set the size of the GUI
+      setPreferredSize(new Dimension(icon.getIconWidth() + 250, icon.getIconHeight() + 120));
+      pack();
+      setLocationRelativeTo(null);
 
       setVisible(true);
 
@@ -205,29 +235,25 @@ public BoardLayersListener(GameManager game) {
 
    // Method to update player info
    public void updatePlayerInfo(List<Player> players) { 
-   for (int i = 0; i < players.size(); i++) {
+      playerTableModel.setRowCount(0);
 
-      Player p = players.get(i);
+      for(Player p : players) {
+         String role = ""; // placeholder empty
+         if(p.getRole() != null) {
+            role = p.getRole().getName();
+         }
 
-      String info = p.getName()
-         + " | Rank: " + p.getRank()
-         + " | Money: " + p.getMoney() 
-         + " | Credits: " + p.getCredits();
+         Object[] row = {
+            p.getName(),
+            p.getRank(),
+            p.getMoney(),
+            p.getCredits(),
+            p.getChips(),
+            role
+         };
 
-
-      if (p.getRole() != null) { //prints role only if player has one
-         info += " | Role: " + p.getRole().getName();
+         playerTableModel.addRow(row);
       }
-
-      playerInfoLabels[i].setText(info);
-      
-   }
-
-   for (int i = players.size(); i <playerInfoLabels.length; i++) {
-      playerInfoLabels[i].setText("");
-      
-   }
-
    }
 
    // Method to show location options
@@ -270,6 +296,7 @@ public BoardLayersListener(GameManager game) {
 
    // Method to take/show role options
    public void showRoleOptions(List<Role> roles, Player player) {
+      clearRoleDropdown();
       displayMessage("Would you like to take a role?");
 
       int startX = boardlabel.getWidth() + 50;
@@ -282,17 +309,23 @@ public BoardLayersListener(GameManager game) {
          
       }
 
-      JComboBox<String> roleDropdown = new JComboBox<>(roleNames);
-      roleDropdown.setBounds(startX, startY, 150, 30);
+      roleDropdown = new JComboBox<>(roleNames);
+      roleDropdown.setBounds(startX, startY, 200, 30);
 
-      JButton takeRoleButton = createButton("Take Role", startX, startY + 40, 150, 30);
-      JButton denyRoleButton = createButton("Deny Role", startX, startY + 80, 150, 30);
+      takeRoleButton = createButton("Take Role", startX, startY + 40, 200, 30);
+      denyRoleButton = createButton("Deny Role", startX, startY + 80, 200, 30);
 
       takeRoleButton.addActionListener(e -> {
          int index = roleDropdown.getSelectedIndex();
          Role chosenRole = roles.get(index);
 
+         if(player.getRank() < chosenRole.getRequiredRank()) {
+            displayMessage(player.getName() + "'s rank is too low for this role!");
+            return;
+         }
          player.takeRole(chosenRole);
+         int playerIndex = game.getPlayerIndex(player);
+         movePlayerToRole(playerIndex, chosenRole);
          displayMessage(player.getName() + " took role " + chosenRole.getName());
 
          updateRoleButtons(player);
@@ -341,8 +374,8 @@ public BoardLayersListener(GameManager game) {
 
          1000 + (index*30), 
          280, 
-         100, 
-         100
+         46, 
+         46
       );
 
       bPane.add(dice, JLayeredPane.PALETTE_LAYER);
@@ -366,7 +399,12 @@ public BoardLayersListener(GameManager game) {
 
    public void movePlayerDice(int playerIndex, int x, int y) {
       JLabel dice = playerDice.get(playerIndex);
-      dice.setLocation(x, y);
+      int newX = (int)(x * scaleX);
+      int newY = (int)(y * scaleY);
+
+      int offSetX = (playerIndex % 3) * 20; // added offset on player die location to avoid stacking if in same location
+      int offSetY = (playerIndex / 3) * 20;
+      dice.setLocation(newX + offSetX, newY + offSetY);
 
       refreshUI();
    }
@@ -385,8 +423,17 @@ public BoardLayersListener(GameManager game) {
       b.setForeground(Color.black);
    }
 
+   public void enableActionButtons() {
+      enableButton(bMove);
+      enableButton(bAct);
+      enableButton(bRehearse);
+      enableButton(bUpgrade);
+      enableButton(bEndTurn);
+   }
+
    public void resetActionButtons() {
       enableButton(bMove);
+      enableButton(bEndTurn);
    }
 
    public void playerMoved() {
@@ -427,6 +474,107 @@ public BoardLayersListener(GameManager game) {
 
    }
 
+   public void clearRoleDropdown() {
+      if (roleDropdown != null) {
+        bPane.remove(roleDropdown);
+        roleDropdown = null;
+      }
 
+      if (takeRoleButton != null) {
+         bPane.remove(takeRoleButton);
+         takeRoleButton = null;
+      }
+
+      if (denyRoleButton != null) {
+         bPane.remove(denyRoleButton);
+         denyRoleButton = null;
+      }
+
+      refreshUI();
+   }
+
+   public void placeSceneCard(SetLocation set) {
+      Scene scene = set.getScene();
+      if (scene == null) return;
+
+      JLabel card = new JLabel(); // PLACEHOLDER BLACK BOX FOR CARD BACK
+      card.setOpaque(true);
+      card.setBackground(Color.BLACK);
+
+      int cardWidth = 150; 
+      int cardHeight = 100;
+
+      int scaledX = (int)(set.getX() * scaleX);
+      int scaledY = (int)(set.getY() * scaleY);
+
+      card.setBounds(scaledX, scaledY, cardWidth, cardHeight);
+
+      /*ImageIcon back = new ImageIcon("images/Card/back.png");  //UPDATE WHEN NEW back.png ADDED
+
+      JLabel card = new JLabel(back);
+
+      int scaledX = (int)(set.getX() * scaleX);
+      int scaledY = (int)(set.getY() * scaleY);
+
+      card.setBounds(scaledX, scaledY, back.getIconWidth(), back.getIconHeight()); */
+
+      sceneCardLabels.put(set, card);
+
+      bPane.add(card, JLayeredPane.PALETTE_LAYER);
+
+      refreshUI();
+   }
+   
+   public void revealSceneCard(SetLocation set) {
+      JLabel card = sceneCardLabels.get(set);
+
+      Scene scene = set.getScene();
+      ImageIcon face = new ImageIcon("images/Card/" + scene.getImage());
+      Image img = face.getImage();
+      int scaledWidth = 160; // We can scale this to fit the board
+      int scaledHeight = 90; 
+      Image scaledImg = img.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
+      
+      card.setIcon(new ImageIcon(scaledImg));
+
+      card.setSize(scaledWidth, scaledHeight);
+      card.setOpaque(false);
+
+      refreshUI();
+   }
+   
+
+   public void movePlayerToRole(int playerIndex, Role role) {
+
+    JLabel dice = playerDice.get(playerIndex);
+
+    int scaledX = (int)(role.getX() * scaleX);
+    int scaledY = (int)(role.getY() * scaleY);
+
+    dice.setLocation(scaledX, scaledY);
+
+    refreshUI();
+   }
+
+   public void updateDiceRank(int playerIndex, int rank) {
+      JLabel dice = playerDice.get(playerIndex);
+
+      String color = PLAYER_DICE_COLORS[playerIndex];
+
+      String file = "images/Dice/" + color + rank + ".png";
+
+      dice.setIcon(new ImageIcon(file));
+
+      refreshUI();
+   }
+
+   public void clearSceneCards() {
+    for (Map.Entry<SetLocation, JLabel> entry : sceneCardLabels.entrySet()) {
+        JLabel cardLabel = entry.getValue();
+        cardLabel.setIcon(null);
+        cardLabel.setOpaque(false);
+        cardLabel.repaint();
+    }
+}
 
 }
