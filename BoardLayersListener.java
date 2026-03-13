@@ -63,6 +63,7 @@ private static final Color DISABLED_TEXT = Color.darkGray;
 private static final String[] PLAYER_DICE_COLORS = {"b", "c", "g", "o", "p", "v", "w", "y"};
 private static final Integer UI_LAYER = 2;
 private static final Integer DICE_LAYER = 3;
+private Map<ShotMarkers, JLabel> shotMarkerLabels = new HashMap<>();
 
 // Constructor
 public BoardLayersListener(GameManager game) {
@@ -162,7 +163,7 @@ public BoardLayersListener(GameManager game) {
       playerPanel.setBounds(20, scaledHeight + 10, scaledWidth - 40, 150);
       playerPanel.setBorder(BorderFactory.createTitledBorder("Players"));
 
-      String[] columns = {"Player","Rank","Money","Credits","Chips","Role"};
+      String[] columns = {"Player","Rank","Money","Credits","Chips","Score"};
 
       playerTableModel = new DefaultTableModel(columns,0);
 
@@ -201,18 +202,23 @@ public BoardLayersListener(GameManager game) {
          
          if (e.getSource() == bAct){
             //playerlabel.setVisible(true);
+            clearMoveButtons();
             game.actCurrentPlayer();
          }
          else if (e.getSource() == bRehearse){
+            clearMoveButtons();
             game.rehearseCurrentPlayer();
          }
          else if (e.getSource() == bMove){
             game.moveCurrentPlayer();
          }
          else if (e.getSource() == bUpgrade){
+            clearMoveButtons();
             game.upgradeCurrentPlayer();
          }
          else if (e.getSource() == bEndTurn){
+            clearMoveButtons();
+            clearRoleDropdown();
             game.endTurn();
          }
 
@@ -249,7 +255,7 @@ public BoardLayersListener(GameManager game) {
             p.getMoney(),
             p.getCredits(),
             p.getChips(),
-            role
+            p.getFinalScore()
          };
 
          playerTableModel.addRow(row);
@@ -325,7 +331,7 @@ public BoardLayersListener(GameManager game) {
          }
          player.takeRole(chosenRole);
          int playerIndex = game.getPlayerIndex(player);
-         movePlayerToRole(playerIndex, chosenRole);
+         movePlayerToRole(playerIndex, player, chosenRole);
          displayMessage(player.getName() + " took role " + chosenRole.getName());
 
          updateRoleButtons(player);
@@ -496,27 +502,19 @@ public BoardLayersListener(GameManager game) {
    public void placeSceneCard(SetLocation set) {
       Scene scene = set.getScene();
       if (scene == null) return;
+      int cardWidth = 160; 
+      int cardHeight = 90;
 
-      JLabel card = new JLabel(); // PLACEHOLDER BLACK BOX FOR CARD BACK
-      card.setOpaque(true);
-      card.setBackground(Color.BLACK);
+      ImageIcon back = new ImageIcon("images/Cardback.png");  //UPDATE WHEN NEW back.png ADDED
+      Image scaledImg = back.getImage().getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH);
+      ImageIcon scaledBack = new ImageIcon(scaledImg);
 
-      int cardWidth = 150; 
-      int cardHeight = 100;
+      JLabel card = new JLabel(scaledBack);
 
       int scaledX = (int)(set.getX() * scaleX);
       int scaledY = (int)(set.getY() * scaleY);
 
       card.setBounds(scaledX, scaledY, cardWidth, cardHeight);
-
-      /*ImageIcon back = new ImageIcon("images/Card/back.png");  //UPDATE WHEN NEW back.png ADDED
-
-      JLabel card = new JLabel(back);
-
-      int scaledX = (int)(set.getX() * scaleX);
-      int scaledY = (int)(set.getY() * scaleY);
-
-      card.setBounds(scaledX, scaledY, back.getIconWidth(), back.getIconHeight()); */
 
       sceneCardLabels.put(set, card);
 
@@ -542,14 +540,40 @@ public BoardLayersListener(GameManager game) {
 
       refreshUI();
    }
+
+   // Removes scene card after wrapup
+   public void removeSceneCard(SetLocation set) {
+      JLabel card = sceneCardLabels.get(set);
+
+      if (card != null) {
+         bPane.remove(card);
+         sceneCardLabels.remove(set);
+
+      }
+      refreshUI();
+         
+   }
    
 
-   public void movePlayerToRole(int playerIndex, Role role) {
+   public void movePlayerToRole(int playerIndex, Player player, Role role) {
 
     JLabel dice = playerDice.get(playerIndex);
 
-    int scaledX = (int)(role.getX() * scaleX);
-    int scaledY = (int)(role.getY() * scaleY);
+    int x = role.getX();
+    int y = role.getY();
+
+    if (role.isOnCard()) {
+      Location loc = player.getLocation();
+
+      if (loc instanceof SetLocation) {
+         x += loc.getX();
+         y += loc.getY();
+         
+      }
+    }
+
+    int scaledX = (int)(x * scaleX);
+    int scaledY = (int)(y * scaleY);
 
     dice.setLocation(scaledX, scaledY);
 
@@ -571,10 +595,111 @@ public BoardLayersListener(GameManager game) {
    public void clearSceneCards() {
     for (Map.Entry<SetLocation, JLabel> entry : sceneCardLabels.entrySet()) {
         JLabel cardLabel = entry.getValue();
-        cardLabel.setIcon(null);
+        bPane.remove(cardLabel);
         cardLabel.setOpaque(false);
         cardLabel.repaint();
     }
-}
+
+    sceneCardLabels.clear();
+    refreshUI();
+
+
+   }
+
+   public void placeShotMarkers(SetLocation set) {
+      ImageIcon shotIcon = new ImageIcon("images/shot.png");
+
+      int index = 0;
+
+      for (ShotMarkers shot : set.getShots()) {
+
+         JLabel marker = new JLabel(shotIcon);
+
+         int scaledX = (int)(shot.getX() * scaleX * 0.7);
+         int scaledY = (int)(shot.getY() * scaleY * 0.7);
+   
+         int scaledW = (int)(shot.getX() * scaleX * 0.7);   
+         int scaledH = (int)(shot.getY() * scaleY * 0.7);
+
+         marker.setBounds(scaledX, scaledY, scaledW, scaledH);
+
+         shotMarkerLabels.put(shot, marker);
+
+         bPane.add(marker, JLayeredPane.PALETTE_LAYER);
+
+         index++;
+
+      }
+
+      refreshUI();
+      
+   }
+
+   public void removeShotMarker(SetLocation set) {
+      List<ShotMarkers> shots = set.getShots();
+
+      int remaining = set.getShotsRemaining();
+
+      if (remaining < shots.size()) {
+         ShotMarkers shot = shots.get(remaining);
+
+         JLabel marker = shotMarkerLabels.get(shot);
+
+         if (marker != null) {
+            bPane.remove(marker);
+            shotMarkerLabels.remove(shot);
+            
+         }
+         
+      }
+
+      refreshUI();
+   }
+
+   public void clearShotMarkers() {
+      for (JLabel marker : shotMarkerLabels.values()) {
+         bPane.remove(marker);
+         
+      }
+
+      shotMarkerLabels.clear();
+
+      refreshUI();
+   }
+
+   public void showGameOverScreen(List<Player> sortedPlayers) {
+      disableButton(bMove);
+      disableButton(bAct);
+      disableButton(bRehearse);
+      disableButton(bUpgrade);
+      disableButton(bEndTurn);
+
+      clearShotMarkers();
+      clearSceneCards();
+
+      displayMessage("GAME OVER! - Final Scores");
+
+      playerTableModel.setRowCount(0);
+
+      for (Player p : sortedPlayers) {
+         Object[] row = {
+            p.getName(),
+            p.getRank(),
+            p.getMoney(),
+            p.getCredits(),
+            p.getChips(),
+            p.getFinalScore()
+         };
+         playerTableModel.addRow(row);
+         
+      }
+
+      playerTable.setRowSelectionInterval(0, 0);
+      playerTable.setSelectionBackground(Color.YELLOW);
+
+      playerTable.getColumnModel().getColumn(5).setHeaderValue("Final Score");
+
+      refreshUI();
+   }
 
 }

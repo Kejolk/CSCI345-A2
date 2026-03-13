@@ -135,6 +135,7 @@ public class Player {
 
         // Assign the role the the player
         role.assignPlayer(this);
+        setRole(role);
         rehearsalChips = 0;
     }
 
@@ -233,5 +234,9 @@ public class Player {
         currentRole = null;
         rehearsalChips = 0;
         actionTaken = false;
+    }
+
+    public int getFinalScore() {
+        return money + credits + (rank * 5);
     }
 }

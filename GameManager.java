@@ -55,17 +55,7 @@ public class GameManager {
                 
             }
 
-            Player player = new Player(name);
-    
-            if (numPlayers == 5) { // adjust resources based on number of players
-                player.addCredits(2);
-            }                           
-            if (numPlayers == 6) {
-                player.addCredits(4); 
-            }
-            if (numPlayers == 7 || numPlayers == 8) {
-                player.setRank(2);
-            }
+            Player player = CreatePlayer.createPlayer(name, numPlayers);
             players.add(player);
         }
 
@@ -73,16 +63,22 @@ public class GameManager {
         gui.createPlayerDice(players);
     }
 
+// DAY MANAGEMENT -----------------------------------------------------------------------------------------------------
+
     public void startDay() { // starts each day, resets player location to trailer, clears board, and puts new scenes
         gui.displayMessage("Day " + currentDay + " begins.");
 
         gui.clearSceneCards();
+        gui.clearShotMarkers();
+
         board.resetScene();
         board.assignScenesForDay(currentDay);
         for (Location loc : board.getLocations()) {
             if (loc instanceof SetLocation) {
                 SetLocation set = (SetLocation) loc;
+
                 gui.placeSceneCard(set);
+                gui.placeShotMarkers(set);
             }
         }
         Location trailer = board.getLocation("Trailer");
@@ -95,6 +91,7 @@ public class GameManager {
 
     }
 
+    /* 
     public void gameLoop() { // game loop, manages player actions
         while (gameRunning) {
             Player currentPlayer = players.get(currentPlayerIndex);
@@ -152,7 +149,8 @@ public class GameManager {
 
             nextTurn();
         }
-    }
+    }*/
+
 
     // prints adjacent locations and lets player pick one, then calls Player class move to that location
     private void manageMove(Player player) { // needs a manager to handle inputs
@@ -167,40 +165,7 @@ public class GameManager {
         gui.showMoveOptions(adj, player);
     }
 
-    // Prints out available roles at location, handles player input, and calls Player class take role
-    public void manageTakeRole(Player player) {
-        Location loc = player.getLocation();
 
-        if (!(loc instanceof SetLocation)) {
-            gui.displayMessage("You must be on a set to take a role.");
-            return;
-        }
-
-        SetLocation set = (SetLocation) loc;
-        List<Role> availableRoles = set.getAvailableRoles();
-        
-
-        if(availableRoles.isEmpty()) {
-            gui.displayMessage("There is no available role on this set.");
-        } else {
-            String roleType;
-            gui.displayMessage("These are the available roles");
-            for (int i = 0; i < availableRoles.size(); i++) {
-                Role r = availableRoles.get(i);
-                if(r.isOnCard()) {
-                    roleType = "On Card";
-                } else {
-                    roleType = "Off Card";
-                }
-                gui.displayMessage("Role " + i + ": " + r.getName() + " (Rank " + r.getRequiredRank() + " - " + roleType + ")");
-            }
-        }
-        
-        int roleChoice = isValidIntInput(0, availableRoles.size() - 1, "Enter number of role to take:");
-        if(roleChoice >= 0 && roleChoice < availableRoles.size()) {
-            player.takeRole(availableRoles.get(roleChoice));
-        }
-    }
 
     // Prints out rank upgrade costs, manages player inputs, and calls CastingOffice upgrade player class
     private void manageUpgrade(Player player) {
@@ -282,6 +247,8 @@ public class GameManager {
         }
     }
 
+// TURN MANAGEMENT -------------------------------------------------------------------------------------------
+
     public void nextTurn() { // next players turn
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size(); // the modulus will cause it to go from last player -> first player
         Player pl = players.get(currentPlayerIndex);
@@ -292,29 +259,198 @@ public class GameManager {
         gui.displayMessage("It is now " + pl.getName() + "'s turn.");
     }
 
-    // Determines winner and prints who they are and their score
-    public void calcFinalScore() {
-        gui.displayMessage("Game over! Calculating final scores:");
+    public void endTurn() {
+        Player p = players.get(currentPlayerIndex);
+        p.setActionTaken(false);
+        nextTurn();
+    }
 
-        Player winner = null;
-        int highestScore = -1;
+// PLAYER ACTIONS --------------------------------------------------------------------------------------------
+    public void moveCurrentPlayer() {
+        Player p = players.get(currentPlayerIndex);
+        if(p.getActionTaken()) {
+            gui.displayMessage(p.getName() + " has already taken their action this turn!");
+            return;
+        }
+        Location loc = p.getLocation();
+        List<Location> adj = loc.getAdjacentLocations();
+        System.out.println("Player: " + p.getName());
+        System.out.println("Location: " + loc.getName());
+        System.out.println("Adjacent count: " + adj.size());
+        gui.showMoveOptions(adj, p);
+    }
 
-        for (Player player : players) {
-            int score = player.getMoney() + player.getCredits() + (player.getRank() * 5);
+    public void moveCurrentPlayerTo(Location loc) {
+        Player p = players.get(currentPlayerIndex);
+        
+        p.move(loc);
 
-            if (score > highestScore) {
-                highestScore = score;
-                winner = player;
+        if(loc instanceof SetLocation) { // reveal scene 
+            SetLocation set = (SetLocation) loc;
+            Scene scene = set.getScene();
+            if(!scene.isRevealed()) {
+                scene.reveal();
+                gui.revealSceneCard(set);
+                System.out.println(scene.getImage());
+            }
+        }
 
+        gui.playerMoved();
+        p.setActionTaken(true);
+
+        int index = players.indexOf(p);
+        gui.movePlayerDice(index, loc.getX(), loc.getY());
+
+        gui.displayMessage(p.getName() + " moved to " + loc.getName());
+        gui.updatePlayerInfo(players);
+
+        gui.updateUpgradeButton(loc);
+
+        // If location is a set ask about role
+        if (loc instanceof SetLocation) {
+            SetLocation set = (SetLocation) loc;
+
+            if (!set.isSceneComplete()) {
+                List<Role> roles = set.getAvailableRoles();
+
+                if (!roles.isEmpty()) {
+                    gui.showRoleOptions(roles, p);
+                    
+                }
                 
             }
             
         }
+    }
 
-        if (winner != null) {
-            gui.displayMessage("Winner is: " + winner.getName() + " with score: " + highestScore);
+
+    public void actCurrentPlayer() {
+        Player p = players.get(currentPlayerIndex);
+        if(p.getActionTaken()) {
+            gui.displayMessage(p.getName() + " has already taken their action this turn!");
+            return;
+        }
+
+        if (p.getRole() == null) {
+            gui.displayMessage("You must take a role before acting.");
+            return;
             
         }
+
+        SetLocation set = (SetLocation) p.getLocation();
+
+        if (set.isSceneComplete()) {
+            gui.displayMessage("Scene already wrapped!");
+            return;
+            
+        }
+        int beforeShots = set.getShotsRemaining();
+
+        p.act();
+
+        int afterShots = set.getShotsRemaining();
+
+        if (beforeShots > afterShots) {
+            gui.removeShotMarker(set);
+            
+        }
+
+        if (beforeShots > 0 && afterShots == 0) {
+            gui.removeSceneCard(set);
+            
+        }
+
+        gui.playerActed();
+        p.setActionTaken(true);
+        gui.updatePlayerInfo(players);
+
+        if(board.isDayOver()) {
+            gui.displayMessage("Only one scene remains. Day is over!");
+            endDay();
+        }
+    }
+
+    public void rehearseCurrentPlayer() {
+        Player p = players.get(currentPlayerIndex);
+        if(p.getActionTaken()) {
+            gui.displayMessage(p.getName() + " has already taken their action this turn!");
+            return;
+        }
+
+        if (p.getRole() == null) {
+            gui.displayMessage("You must take a role before rehearsing.");
+            return;
+            
+        }
+
+        p.rehearse();
+        p.setActionTaken(true);
+        gui.playerRehearsed();
+        gui.updatePlayerInfo(players);
+    }
+
+    public void upgradeCurrentPlayer() {
+        Player p = players.get(currentPlayerIndex);
+        if(p.getActionTaken()) {
+            gui.displayMessage(p.getName() + " has already taken their action this turn!");
+            return;
+        }
+        manageUpgrade(p);
+
+        gui.updatePlayerInfo(players);
+    }
+
+// ROLE MANAGEMENT ------------------------------------------------------------------------------------------
+    // Prints out available roles at location, handles player input, and calls Player class take role
+    public void manageTakeRole(Player player) {
+        Location loc = player.getLocation();
+
+        if (!(loc instanceof SetLocation)) {
+            gui.displayMessage("You must be on a set to take a role.");
+            return;
+        }
+
+        SetLocation set = (SetLocation) loc;
+        List<Role> availableRoles = set.getAvailableRoles();
+        
+
+        if(availableRoles.isEmpty()) {
+            gui.displayMessage("There is no available role on this set.");
+        } else {
+            String roleType;
+            gui.displayMessage("These are the available roles");
+            for (int i = 0; i < availableRoles.size(); i++) {
+                Role r = availableRoles.get(i);
+                if(r.isOnCard()) {
+                    roleType = "On Card";
+                } else {
+                    roleType = "Off Card";
+                }
+                gui.displayMessage("Role " + i + ": " + r.getName() + " (Rank " + r.getRequiredRank() + " - " + roleType + ")");
+            }
+        }
+        
+        int roleChoice = isValidIntInput(0, availableRoles.size() - 1, "Enter number of role to take:");
+        if(roleChoice >= 0 && roleChoice < availableRoles.size()) {
+            player.takeRole(availableRoles.get(roleChoice));
+        }
+    }
+
+// Utility --------------------------------------------------------------------------------------------------
+    // Determines winner and prints who they are and their score
+    public void calcFinalScore() {
+
+        gui.displayMessage("Game over! Calculating final scores:");
+
+        List<Player> sortedPlayers = new ArrayList<>(players);
+
+        sortedPlayers.sort((p1, p2) ->
+            Integer.compare(p2.getFinalScore(), p1.getFinalScore())
+
+
+        );
+
+        gui.showGameOverScreen(sortedPlayers);
     }
 
     private int isValidIntInput(int min, int max, String prompt) { // catches any non-valid inputs
@@ -363,126 +499,12 @@ public class GameManager {
         gui.displayMessage("help  - Show this list of commands");
         gui.displayMessage("endgame  - End the game immediately");
     }
-
-    // Controller methods for GUI usage
-    public void actCurrentPlayer() {
-        Player p = players.get(currentPlayerIndex);
-        if(p.getActionTaken()) {
-            gui.displayMessage(p.getName() + " has already taken their action this turn!");
-            return;
-        }
-
-        if (p.getRole() == null) {
-            gui.displayMessage("You must take a role before acting.");
-            return;
-            
-        }
-
-        p.act();
-
-        gui.playerActed();
-        p.setActionTaken(true);
-        gui.updatePlayerInfo(players);
-
-        if(board.isDayOver()) {
-            gui.displayMessage("One scene remaining. Day is over!");
-            endDay();
-        }
-    }
-
-    public void rehearseCurrentPlayer() {
-        Player p = players.get(currentPlayerIndex);
-        if(p.getActionTaken()) {
-            gui.displayMessage(p.getName() + " has already taken their action this turn!");
-            return;
-        }
-
-        if (p.getRole() == null) {
-            gui.displayMessage("You must take a role before rehearsing.");
-            return;
-            
-        }
-
-        p.rehearse();
-        p.setActionTaken(true);
-        gui.playerRehearsed();
-        gui.updatePlayerInfo(players);
-    }
-
-    public void moveCurrentPlayer() {
-        Player p = players.get(currentPlayerIndex);
-        if(p.getActionTaken()) {
-            gui.displayMessage(p.getName() + " has already taken their action this turn!");
-            return;
-        }
-        Location loc = p.getLocation();
-        List<Location> adj = loc.getAdjacentLocations();
-        System.out.println("Player: " + p.getName());
-        System.out.println("Location: " + loc.getName());
-        System.out.println("Adjacent count: " + adj.size());
-        gui.showMoveOptions(adj, p);
-    }
-
-    public void upgradeCurrentPlayer() {
-        Player p = players.get(currentPlayerIndex);
-        if(p.getActionTaken()) {
-            gui.displayMessage(p.getName() + " has already taken their action this turn!");
-            return;
-        }
-        manageUpgrade(p);
-
-        gui.updatePlayerInfo(players);
-    }
-
-    public void endTurn() {
-        Player p = players.get(currentPlayerIndex);
-        p.setActionTaken(false);
-        nextTurn();
-    }
-
+    
     public void showCurrentPlayerInfo() {
         Player p = players.get(currentPlayerIndex);
         playerInfo(p);
     }
 
-    public void moveCurrentPlayerTo(Location loc) {
-        Player p = players.get(currentPlayerIndex);
-        
-        p.move(loc);
-
-        if(loc instanceof SetLocation) { // reveal scene 
-            SetLocation set = (SetLocation) loc;
-            Scene scene = set.getScene();
-            if(!scene.isRevealed()) {
-                scene.reveal();
-                gui.revealSceneCard(set);
-                System.out.println(scene.getImage());
-            }
-        }
-
-        gui.playerMoved();
-        p.setActionTaken(true);
-
-        int index = players.indexOf(p);
-        gui.movePlayerDice(index, loc.getX(), loc.getY());
-
-        gui.displayMessage(p.getName() + " moved to " + loc.getName());
-        gui.updatePlayerInfo(players);
-
-        gui.updateUpgradeButton(loc);
-
-        // If location is a set ask about role
-        if (loc instanceof SetLocation) {
-            SetLocation set = (SetLocation) loc;
-            List<Role> roles = set.getAvailableRoles();
-
-            if (!roles.isEmpty()) {
-                gui.showRoleOptions(roles, p);
-                
-            }
-            
-        }
-    }
 
     public int getPlayerIndex(Player player) {
         return players.indexOf(player);

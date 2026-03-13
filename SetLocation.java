@@ -32,6 +32,10 @@ public class SetLocation extends Location {
         return roles;
     }
 
+    public List<ShotMarkers> getShots() {
+        return shots;
+    }
+
     public void setScene(Scene scene) { // To assign a scene card to a location
         this.scene = scene;
     }
@@ -115,6 +119,8 @@ public class SetLocation extends Location {
             Player player = currentRole.getOccupiedBy();
             if(player != null) {
                 player.addMoney(die);
+            } else {
+                index--;
             }
             index++;
 
