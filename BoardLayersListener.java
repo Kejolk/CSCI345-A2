@@ -65,6 +65,10 @@ private static final String[] PLAYER_DICE_COLORS = {"b", "c", "g", "o", "p", "v"
 private static final Integer UI_LAYER = 2;
 private static final Integer DICE_LAYER = 3;
 private Map<ShotMarkers, JLabel> shotMarkerLabels = new HashMap<>();
+private static final Color MENU_BG = new Color(60,45, 30);
+private static final Color BUTTON_COLOR = new Color(210, 180, 140);
+private static final Color PANEL_BG = new Color(245, 235, 215);
+private static final Color TEXT_COLOR = new Color(40, 30, 20);
 
 // Constructor
 public BoardLayersListener(GameManager game) {
@@ -132,29 +136,34 @@ public BoardLayersListener(GameManager game) {
 
       // Create Action buttons
       bAct = new JButton("ACT");
-      bAct.setBackground(Color.white);
+      bAct.setBackground(BUTTON_COLOR);
+      bAct.setForeground(TEXT_COLOR);
       bAct.setBounds(scaledWidth+10,230,100, 100);
       bAct.addMouseListener(new boardMouseListener());
 
       bMove = new JButton("MOVE");
-      bMove.setBackground(Color.white);
+      bMove.setBackground(BUTTON_COLOR);
+      bMove.setForeground(TEXT_COLOR);
       bMove.setBounds(scaledWidth+10, 30,100, 100);
       bMove.addMouseListener(new boardMouseListener());
       
       bRehearse = new JButton("REHEARSE");
-      bRehearse.setBackground(Color.white);
+      bRehearse.setBackground(BUTTON_COLOR);
+      bRehearse.setForeground(TEXT_COLOR);
       bRehearse.setBounds(scaledWidth+10,130,100, 100);
       bRehearse.addMouseListener(new boardMouseListener());
       
       bUpgrade = new JButton("UPGRADE");
       bUpgrade.setEnabled(false);
       bUpgrade.setToolTipText("Upgrade rank at Casting Office");
-      bUpgrade.setBackground(new Color(200,200,200));
+      bUpgrade.setBackground(BUTTON_COLOR);
+      bUpgrade.setForeground(TEXT_COLOR);
       bUpgrade.setBounds(scaledWidth+10,330,100, 100);
       bUpgrade.addMouseListener(new boardMouseListener());
 
       bEndTurn = new JButton("END TURN");
-      bEndTurn.setBackground(Color.white);
+      bEndTurn.setBackground(BUTTON_COLOR);
+      bEndTurn.setForeground(TEXT_COLOR);
       bEndTurn.setBounds(scaledWidth+10,430,100, 100);
       bEndTurn.addMouseListener(new boardMouseListener());
 
@@ -162,16 +171,30 @@ public BoardLayersListener(GameManager game) {
       playerPanel = new JPanel();
       playerPanel.setLayout(new BorderLayout());
       playerPanel.setBounds(20, scaledHeight + 10, scaledWidth - 40, 150);
-      playerPanel.setBorder(BorderFactory.createTitledBorder("Players"));
+      playerPanel.setBorder(BorderFactory.createTitledBorder(
+         BorderFactory.createLineBorder(new Color(120, 100, 70), 2),
+         "Players",
+         0,0,
+         new Font("Arial", Font.BOLD, 14)
+
+      ));
+      playerPanel.setBackground(PANEL_BG);
+      playerPanel.setOpaque(true);
+      playerPanel.setBackground(new Color(245, 235, 215, 230));
 
       String[] columns = {"Player","Rank","Money","Credits","Chips","Score"};
 
       playerTableModel = new DefaultTableModel(columns,0);
 
       playerTable = new JTable(playerTableModel);
-      playerTable.setRowHeight(22);
+      playerTable.setRowHeight(24);
+      playerTable.setFont(new Font("Arial", Font.PLAIN, 14));
       playerTable.setEnabled(false);
-      playerTable.getTableHeader().setReorderingAllowed(false);
+      playerTable.getTableHeader().setFont(new Font("Arial", Font.PLAIN, 14));
+
+      playerTable.setBackground(PANEL_BG);
+      playerTable.setGridColor(new Color(200,200,200));
+      playerTable.setSelectionBackground(new Color(220, 200, 150));
 
       JScrollPane scrollPane = new JScrollPane(playerTable);
 
@@ -192,7 +215,6 @@ public BoardLayersListener(GameManager game) {
 
       setVisible(true);
 
-
    }
 
    // This class implements Mouse Events
@@ -211,6 +233,7 @@ public BoardLayersListener(GameManager game) {
             game.rehearseCurrentPlayer();
          }
          else if (e.getSource() == bMove){
+            clearRoleDropdown();
             disableButton(bAct);
             disableButton(bRehearse);
             disableButton(bUpgrade);
@@ -468,6 +491,11 @@ public BoardLayersListener(GameManager game) {
    private JButton createButton(String text, int x, int y, int w, int h) {
       JButton b = new JButton(text);
       b.setBounds(x, y, w, h);
+
+      b.setBackground(BUTTON_COLOR);
+      b.setForeground(TEXT_COLOR);
+      b.setFocusPainted(false);
+      b.setBorder(BorderFactory.createLineBorder(new Color(120, 100, 70), 2));
       return b;
    }
 
@@ -715,8 +743,8 @@ public BoardLayersListener(GameManager game) {
    public void displayBonusMessage(String text) {
       if (bonusMessageLabel == null) {
          bonusMessageLabel = new JLabel();
-         bonusMessageLabel.setForeground(Color.BLACK);
-         bonusMessageLabel.setFont(new Font("Arial", Font.BOLD, 18));
+         bonusMessageLabel.setForeground(new Color(70, 40, 20));
+         bonusMessageLabel.setFont(new Font("Serif", Font.BOLD, 20));
          bPane.add(bonusMessageLabel, UI_LAYER);
       }
 

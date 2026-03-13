@@ -302,6 +302,8 @@ public class GameManager {
 
     public void moveCurrentPlayerTo(Location loc) {
         Player p = players.get(currentPlayerIndex);
+
+        gui.clearRoleDropdown();
         
         p.move(loc);
 
@@ -330,7 +332,7 @@ public class GameManager {
         if (loc instanceof SetLocation) {
             SetLocation set = (SetLocation) loc;
 
-            if (!set.isSceneComplete()) {
+            if (!set.isSceneComplete() && p.getRole() == null) {
                 List<Role> roles = set.getAvailableRoles();
 
                 if (!roles.isEmpty()) {
