@@ -27,6 +27,7 @@ JLabel cardlabel;
 JLabel playerlabel;
 JLabel mLabel;
 JLabel messageLabel;
+JLabel bonusMessageLabel;
 
 //JButtons
 JButton bAct;
@@ -210,6 +211,10 @@ public BoardLayersListener(GameManager game) {
             game.rehearseCurrentPlayer();
          }
          else if (e.getSource() == bMove){
+            disableButton(bAct);
+            disableButton(bRehearse);
+            disableButton(bUpgrade);
+            disableButton(bEndTurn);
             game.moveCurrentPlayer();
          }
          else if (e.getSource() == bUpgrade){
@@ -237,6 +242,10 @@ public BoardLayersListener(GameManager game) {
    // Method to display text
    public void displayMessage(String text) {
       messageLabel.setText(text);
+      if (bonusMessageLabel != null) { // to clearn the bonus messages if not needed here
+         bonusMessageLabel.setVisible(false);
+         bonusMessageLabel.setText("");
+      }
    }
 
    // Method to update player info
@@ -279,7 +288,7 @@ public BoardLayersListener(GameManager game) {
          btn.addActionListener(e -> {
             game.moveCurrentPlayerTo(loc);
             clearMoveButtons();
-
+            enableButton(bEndTurn);
          });
 
          moveButtons.add(btn);
@@ -306,7 +315,7 @@ public BoardLayersListener(GameManager game) {
       displayMessage("Would you like to take a role?");
 
       int startX = boardlabel.getWidth() + 50;
-      int startY = 420 + (moveButtons.size() * 50) + 10;
+      int startY = 570;
 
       String[] roleNames = new String[roles.size()];
       for (int i = 0; i < roles.size(); i++) {
@@ -469,13 +478,14 @@ public BoardLayersListener(GameManager game) {
 
    public void updateRoleButtons(Player p) {
       if (p.getRole() == null) {
+         enableButton(bMove);
          disableButton(bAct);
          disableButton(bRehearse);
-         
       }
       else {
          enableButton(bAct);
          enableButton(bRehearse);
+         disableButton(bMove);
       }
 
    }
@@ -615,11 +625,11 @@ public BoardLayersListener(GameManager game) {
 
          JLabel marker = new JLabel(shotIcon);
 
-         int scaledX = (int)(shot.getX() * scaleX * 0.7);
-         int scaledY = (int)(shot.getY() * scaleY * 0.7);
-   
-         int scaledW = (int)(shot.getX() * scaleX * 0.7);   
-         int scaledH = (int)(shot.getY() * scaleY * 0.7);
+        int scaledX = (int)(shot.getX() * scaleX);
+        int scaledY = (int)(shot.getY() * scaleY);
+
+        int scaledW = (int)(shotIcon.getIconWidth() * scaleX);
+        int scaledH = (int)(shotIcon.getIconHeight() * scaleY);
 
          marker.setBounds(scaledX, scaledY, scaledW, scaledH);
 
@@ -702,4 +712,22 @@ public BoardLayersListener(GameManager game) {
       refreshUI();
    }
 
+   public void displayBonusMessage(String text) {
+      if (bonusMessageLabel == null) {
+         bonusMessageLabel = new JLabel();
+         bonusMessageLabel.setForeground(Color.BLACK);
+         bonusMessageLabel.setFont(new Font("Arial", Font.BOLD, 18));
+         bPane.add(bonusMessageLabel, UI_LAYER);
+      }
+
+      int mainX = messageLabel.getX();
+      int mainY = messageLabel.getY();
+      int mainWidth = messageLabel.getWidth();
+
+      bonusMessageLabel.setText(text);
+      bonusMessageLabel.setBounds(mainX, mainY + 30, mainWidth, 30);
+      bonusMessageLabel.setVisible(true);
+
+      refreshUI();
+   }
 }

@@ -142,20 +142,21 @@ public class Player {
     /**
      * Performs role for Player, given the Player has a role
      */
-    public void act() {
+    public ActionMessage act() {
+        ActionMessage message;
         if (actionTaken) {
             System.out.println(name + " may not act this turn. Wait until next turn to move, act or rehearse");
-            return;
+            return message = new ActionMessage("", "name");
         }
 
         if (!(location instanceof SetLocation)) {
             System.out.println(name + " cannot act here!");
-            return;
+            return message = new ActionMessage("", "name");
         }
         // If the player has no role then return false
         if (currentRole == null) {
             System.out.println(name + " does not currently have a role.");
-            return;
+            return message = new ActionMessage("", "name");
         }
 
         // Dice roll value calc
@@ -167,35 +168,38 @@ public class Player {
 
         if(set.isSceneComplete()) {
             System.out.println("This scene has already wrapped. " + name + " cannot act.");
-            return;
+            return message = new ActionMessage("", "name");
         }
-
+        actionTaken = true;
         // If the dice roll and players rehearsal chips are high enough give credits to player
         if (diceRoll + rehearsalChips >= scene.getBudget()) {
+            String bonusMessage = "";
             if(currentRole.isOnCard()) {
                 addCredits(2);
-                System.out.println(name + " has earned 2 credits!");
+                set.removeShot();
+                if(set.isSceneComplete()) {
+                    System.out.println("Scene has wrapped!");
+                    bonusMessage = set.wrapScene();
+                }
+                return message = new ActionMessage(name + " succeeded in acting has earned 2 credits!", bonusMessage);
             } else {
                 addCredits(1);
                 addMoney(1);
-                System.out.println(name + " has earned 1 credit and 1 dollar!");
+                set.removeShot();
+                if(set.isSceneComplete()) {
+                    System.out.println("Scene has wrapped!");
+                    bonusMessage = set.wrapScene();
+                }
+                return message = new ActionMessage(name + " succeeded in acting has earned 2 credits!", bonusMessage);
             }
-            set.removeShot();
-            System.out.println(name + " succeeded in acting! Shots left on this set: " + set.getShotsRemaining());
-            if(set.isSceneComplete()) {
-                System.out.println("Scene has wrapped!");
-                set.wrapScene();
-            }
-            actionTaken = true;
-            return;
         }
         System.out.println(name + " failed in acting.");
         actionTaken = true;
         if(!currentRole.isOnCard()) {
             addMoney(1);
-            System.out.println(name + " has earned 1 dollar!");
-            return;
+            return message = new ActionMessage(name + " failed at acting but has earned 1 dollar!", "");
         }
+        return message = new ActionMessage(name + " failed at acting!", "");
     }
 
     /**

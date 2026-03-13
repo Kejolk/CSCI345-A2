@@ -25,20 +25,19 @@ public class CastingOffice extends Location {
      * if player location is at casting office and and has sufficent resources to upgrade, upgrade player
      * Can only upgrade once 
      */
-    public void upgradePlayer(Player player, int rank, boolean useCredits) { 
+    public String upgradePlayer(Player player, int rank, boolean useCredits) { 
         // validates player
         if (player == null) {
-            return;
+            return "";
         }
         Location location = player.getLocation();
         if(!(location instanceof CastingOffice)) {
             System.out.println(player.getName() + " is not at the Casting Office.");
-            return;
+            return "";
         }
 
         if(rank <= player.getRank()) { // to avoid player upgrading to rank equal or lower than current
-            System.out.println("You may only upgrade to a rank higher than your current one.");
-            return;
+            return "You may only upgrade to a rank higher than your current one.";
         }
         
         int cost;
@@ -51,16 +50,14 @@ public class CastingOffice extends Location {
         if((useCredits && player.getCredits() >= cost)) { // if player chooses to use credits & can afford upgrade
             player.addCredits(-cost);
             player.setRank(rank);
-            System.out.println(player.getName() + " upgraded to rank " + rank + " using credits.");
-            return;
+            return player.getName() + " upgraded to rank " + rank + " using credits.";
         } 
         if(!useCredits && player.getMoney() >= cost) { // if player chooses money & can afford upgrade
             player.addMoney(-cost);
             player.setRank(rank);
-            System.out.println(player.getName() + " upgraded to rank " + rank + " using money.");
-            return;
+            return player.getName() + " upgraded to rank " + rank + " using money.";
         }
 
-        System.out.println("Upgrade failed due to insufficient amount of selected resource.");
+        return "Upgrade failed due to insufficient amount of selected resource.";
     }
 }

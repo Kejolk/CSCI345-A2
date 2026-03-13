@@ -179,13 +179,13 @@ public class GameManager {
 
         CastingOffice office = (CastingOffice) loc;
 
-        gui.displayMessage("Upgrade Costs:");
+        /*gui.displayMessage("Upgrade Costs:");
         gui.displayMessage("Rank   |   Money   |   Credits");
         gui.displayMessage("2   |  4  |  5");
         gui.displayMessage("3   |  10  |  10");
         gui.displayMessage("4   |  18  |  15");
         gui.displayMessage("5   |  28  |  20");
-        gui.displayMessage("6   |  40  |  25");
+        gui.displayMessage("6   |  40  |  25");*/
 
         // Asks rank
         String rankInput = JOptionPane.showInputDialog(
@@ -226,7 +226,8 @@ public class GameManager {
 
         boolean useCredits = (choice == 1);
 
-        office.upgradePlayer(player, targetRank, useCredits);
+        String message = office.upgradePlayer(player, targetRank, useCredits);
+        gui.displayMessage(message);
         gui.updateDiceRank(players.indexOf(player), player.getRank());
 
         gui.updatePlayerInfo(players);
@@ -257,6 +258,20 @@ public class GameManager {
         gui.updateRoleButtons(pl);
         gui.updateUpgradeButton(pl.getLocation());
         gui.displayMessage("It is now " + pl.getName() + "'s turn.");
+
+        Location loc = pl.getLocation();
+
+        if (pl.getRole() == null && loc instanceof SetLocation) {
+            SetLocation set = (SetLocation) loc;
+
+            if (!set.isSceneComplete()) {
+                List<Role> roles = set.getAvailableRoles();
+
+                if (!roles.isEmpty()) {
+                    gui.showRoleOptions(roles, pl);
+                }
+            }
+        }
     }
 
     public void endTurn() {
@@ -271,6 +286,11 @@ public class GameManager {
         if(p.getActionTaken()) {
             gui.displayMessage(p.getName() + " has already taken their action this turn!");
             return;
+        }
+
+        if (p.getRole() != null) {
+        gui.displayMessage(p.getName() + " cannot move while on a role!");
+        return;
         }
         Location loc = p.getLocation();
         List<Location> adj = loc.getAdjacentLocations();
@@ -345,8 +365,11 @@ public class GameManager {
             
         }
         int beforeShots = set.getShotsRemaining();
+        ActionMessage message;
+        message = p.act();
 
-        p.act();
+        gui.displayMessage(message.getMainMessage());
+        gui.displayBonusMessage(message.getBonusMessage());
 
         int afterShots = set.getShotsRemaining();
 
@@ -391,10 +414,7 @@ public class GameManager {
 
     public void upgradeCurrentPlayer() {
         Player p = players.get(currentPlayerIndex);
-        if(p.getActionTaken()) {
-            gui.displayMessage(p.getName() + " has already taken their action this turn!");
-            return;
-        }
+
         manageUpgrade(p);
 
         gui.updatePlayerInfo(players);
@@ -508,5 +528,9 @@ public class GameManager {
 
     public int getPlayerIndex(Player player) {
         return players.indexOf(player);
+    }
+
+    public Player getCurrentPlayer() {
+        return players.get(currentPlayerIndex);
     }
 }

@@ -65,12 +65,12 @@ public class SetLocation extends Location {
         return shotsRemaining <= 0; // returns a boolean (true if <= 0) 
     }
 
-    public void wrapScene() {
+    public String wrapScene() {
         if(scene == null) {
-            return; // needed for day 1 due to how board distributes scenes
+            return ""; // needed for day 1 due to how board distributes scenes
         }
 
-        bonuses();
+        String bonusMessage = bonuses();
 
         for(Role role : roles) { // remove all players from off-card roles
             role.removePlayer();
@@ -79,12 +79,12 @@ public class SetLocation extends Location {
         for(Role role : scene.getRoles()) { // remove all players from on-card roles
             role.removePlayer();
         }
-
+        return bonusMessage;
     }
 
-    public void bonuses() { // pays out bonuses after scene is wrapped
+    public String bonuses() { // pays out bonuses after scene is wrapped
         if (scene == null) {
-            return;
+            return "";
         }
 
         ArrayList<Role> sceneRoles = new ArrayList<>();
@@ -101,8 +101,7 @@ public class SetLocation extends Location {
         }
 
         if(!onCardPlayer) {
-            System.out.println("No player on-card therefore no bonuses paid out!");
-            return;
+            return"No player on-card therefore no bonuses paid out!";
         }
 
         int budget = scene.getBudget();
@@ -135,7 +134,7 @@ public class SetLocation extends Location {
                     player.addMoney(role.getRequiredRank());
             }
         }
-        System.out.println("Bonuses have been paid out!");
+        return "Bonuses have been paid out!";
     }
 
     public void resetShots() {
