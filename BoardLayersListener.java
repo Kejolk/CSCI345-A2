@@ -135,25 +135,25 @@ public BoardLayersListener(GameManager game) {
       bPane.add(messageLabel, UI_LAYER);
 
       // Create Action buttons
-      bAct = new JButton("ACT");
+      bAct = new JButton("ACT"); // act button
       bAct.setBackground(BUTTON_COLOR);
       bAct.setForeground(TEXT_COLOR);
       bAct.setBounds(scaledWidth+10,230,100, 100);
       bAct.addMouseListener(new boardMouseListener());
 
-      bMove = new JButton("MOVE");
+      bMove = new JButton("MOVE"); // move button
       bMove.setBackground(BUTTON_COLOR);
       bMove.setForeground(TEXT_COLOR);
       bMove.setBounds(scaledWidth+10, 30,100, 100);
       bMove.addMouseListener(new boardMouseListener());
       
-      bRehearse = new JButton("REHEARSE");
+      bRehearse = new JButton("REHEARSE"); // rehearse button
       bRehearse.setBackground(BUTTON_COLOR);
       bRehearse.setForeground(TEXT_COLOR);
       bRehearse.setBounds(scaledWidth+10,130,100, 100);
       bRehearse.addMouseListener(new boardMouseListener());
       
-      bUpgrade = new JButton("UPGRADE");
+      bUpgrade = new JButton("UPGRADE"); // upgrade button
       bUpgrade.setEnabled(false);
       bUpgrade.setToolTipText("Upgrade rank at Casting Office");
       bUpgrade.setBackground(BUTTON_COLOR);
@@ -161,7 +161,7 @@ public BoardLayersListener(GameManager game) {
       bUpgrade.setBounds(scaledWidth+10,330,100, 100);
       bUpgrade.addMouseListener(new boardMouseListener());
 
-      bEndTurn = new JButton("END TURN");
+      bEndTurn = new JButton("END TURN"); // end turn button
       bEndTurn.setBackground(BUTTON_COLOR);
       bEndTurn.setForeground(TEXT_COLOR);
       bEndTurn.setBounds(scaledWidth+10,430,100, 100);
@@ -184,7 +184,7 @@ public BoardLayersListener(GameManager game) {
 
       String[] columns = {"Player","Rank","Money","Credits","Chips","Score"};
 
-      playerTableModel = new DefaultTableModel(columns,0);
+      playerTableModel = new DefaultTableModel(columns,0); // player stat table
 
       playerTable = new JTable(playerTableModel);
       playerTable.setRowHeight(24);
@@ -223,16 +223,16 @@ public BoardLayersListener(GameManager game) {
       public void mouseClicked(MouseEvent e) {
          if (!((JButton)e.getSource()).isEnabled()) return;
          
-         if (e.getSource() == bAct){
+         if (e.getSource() == bAct){ // act
             //playerlabel.setVisible(true);
             clearMoveButtons();
             game.actCurrentPlayer();
          }
-         else if (e.getSource() == bRehearse){
+         else if (e.getSource() == bRehearse){ // rehearse
             clearMoveButtons();
             game.rehearseCurrentPlayer();
          }
-         else if (e.getSource() == bMove){
+         else if (e.getSource() == bMove){ // move
             clearRoleDropdown();
             disableButton(bAct);
             disableButton(bRehearse);
@@ -240,11 +240,11 @@ public BoardLayersListener(GameManager game) {
             disableButton(bEndTurn);
             game.moveCurrentPlayer();
          }
-         else if (e.getSource() == bUpgrade){
+         else if (e.getSource() == bUpgrade){ // upgrade
             clearMoveButtons();
             game.upgradeCurrentPlayer();
          }
-         else if (e.getSource() == bEndTurn){
+         else if (e.getSource() == bEndTurn){ // end turn
             clearMoveButtons();
             clearRoleDropdown();
             game.endTurn();
@@ -322,7 +322,7 @@ public BoardLayersListener(GameManager game) {
       refreshUI();
    }
 
-   public void clearMoveButtons() {
+   public void clearMoveButtons() { // clear all move options
       for (JButton b : moveButtons) {
          bPane.remove(b);
          
@@ -347,7 +347,7 @@ public BoardLayersListener(GameManager game) {
          
       }
 
-      roleDropdown = new JComboBox<>(roleNames);
+      roleDropdown = new JComboBox<>(roleNames); // create role dropdown menu
       roleDropdown.setBounds(startX, startY, 200, 30);
 
       takeRoleButton = createButton("Take Role", startX, startY + 40, 200, 30);
@@ -395,7 +395,7 @@ public BoardLayersListener(GameManager game) {
 
    // updates upgrade button
    public void updateUpgradeButton(Location playerLocation) {
-      if (playerLocation instanceof CastingOffice) {
+      if (playerLocation instanceof CastingOffice) { // only enable button if player at castingOffice
          enableButton(bUpgrade);
          
       } else {
@@ -404,7 +404,7 @@ public BoardLayersListener(GameManager game) {
    }
 
 
-   private JLabel createDice(int index) {
+   private JLabel createDice(int index) { // creates dice
       String diceFile = "images/Dice/" + PLAYER_DICE_COLORS[index] + "1.png";
       JLabel dice = new JLabel(new ImageIcon(diceFile));
 
@@ -423,7 +423,7 @@ public BoardLayersListener(GameManager game) {
 
    }
 
-   public void createPlayerDice(List<Player> players) {
+   public void createPlayerDice(List<Player> players) { // creates dice for all players and stores them
       playerDice.clear();
 
       for (int i = 0; i < players.size(); i++) {
@@ -435,9 +435,9 @@ public BoardLayersListener(GameManager game) {
       refreshUI();
    }
 
-   public void movePlayerDice(int playerIndex, int x, int y) {
+   public void movePlayerDice(int playerIndex, int x, int y) { // move player dice to given x,y coordinates
       JLabel dice = playerDice.get(playerIndex);
-      int newX = (int)(x * scaleX);
+      int newX = (int)(x * scaleX); // scale coordinates based on board scaling
       int newY = (int)(y * scaleY);
 
       int offSetX = (playerIndex % 3) * 20; // added offset on player die location to avoid stacking if in same location
@@ -447,21 +447,21 @@ public BoardLayersListener(GameManager game) {
       refreshUI();
    }
 
-   public void disableButton(JButton b) {
+   public void disableButton(JButton b) { // gray out and disable button
       b.setEnabled(false);
       b.setOpaque(true);
       b.setBackground(DISABLED_COLOR);
       b.setForeground(DISABLED_TEXT);
    }
 
-   public void enableButton(JButton b) {
+   public void enableButton(JButton b) { // enable button for clicking and set right color
       b.setEnabled(true);
       b.setOpaque(true);
-      b.setBackground(ENABLED_COLOR);
+      b.setBackground(BUTTON_COLOR);
       b.setForeground(Color.black);
    }
 
-   public void enableActionButtons() {
+   public void enableActionButtons() { // enable all action buttons
       enableButton(bMove);
       enableButton(bAct);
       enableButton(bRehearse);
@@ -469,26 +469,26 @@ public BoardLayersListener(GameManager game) {
       enableButton(bEndTurn);
    }
 
-   public void resetActionButtons() {
+   public void resetActionButtons() { // reenaable move and endturn
       enableButton(bMove);
       enableButton(bEndTurn);
    }
 
-   public void playerMoved() {
+   public void playerMoved() { // disables move (used if player has already moved on turn)
       disableButton(bMove);
    }
 
-   public void playerActed() {
+   public void playerActed() { // disables act, rehearse (used if player worked)
       disableButton(bAct);
       disableButton(bRehearse);
    }
 
-   public void playerRehearsed() {
+   public void playerRehearsed() { // disables act, rehearse (used if player worked)
       disableButton(bRehearse);
       disableButton(bAct);
    }
 
-   private JButton createButton(String text, int x, int y, int w, int h) {
+   private JButton createButton(String text, int x, int y, int w, int h) { // create a button 
       JButton b = new JButton(text);
       b.setBounds(x, y, w, h);
 
@@ -499,26 +499,26 @@ public BoardLayersListener(GameManager game) {
       return b;
    }
 
-   private void refreshUI() {
+   private void refreshUI() { // refreshes UI
       bPane.revalidate();
       bPane.repaint();
    }
 
-   public void updateRoleButtons(Player p) {
-      if (p.getRole() == null) {
+   public void updateRoleButtons(Player p) { // updates all role related buttons,
+      if (p.getRole() == null) { // if player doesn't have a role, no act or rehearse
          enableButton(bMove);
          disableButton(bAct);
          disableButton(bRehearse);
       }
       else {
-         enableButton(bAct);
+         enableButton(bAct); // if player has a role, they can't move
          enableButton(bRehearse);
          disableButton(bMove);
       }
 
    }
 
-   public void clearRoleDropdown() {
+   public void clearRoleDropdown() { // remove the role dropdown menu
       if (roleDropdown != null) {
         bPane.remove(roleDropdown);
         roleDropdown = null;
@@ -537,19 +537,19 @@ public BoardLayersListener(GameManager game) {
       refreshUI();
    }
 
-   public void placeSceneCard(SetLocation set) {
+   public void placeSceneCard(SetLocation set) { // place scenecard on board
       Scene scene = set.getScene();
       if (scene == null) return;
       int cardWidth = 160; 
       int cardHeight = 90;
 
-      ImageIcon back = new ImageIcon("images/Cardback.png");  //UPDATE WHEN NEW back.png ADDED
-      Image scaledImg = back.getImage().getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH);
+      ImageIcon back = new ImageIcon("images/Cardback.png");
+      Image scaledImg = back.getImage().getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH); 
       ImageIcon scaledBack = new ImageIcon(scaledImg);
 
       JLabel card = new JLabel(scaledBack);
 
-      int scaledX = (int)(set.getX() * scaleX);
+      int scaledX = (int)(set.getX() * scaleX); // scale placements based on board scale
       int scaledY = (int)(set.getY() * scaleY);
 
       card.setBounds(scaledX, scaledY, cardWidth, cardHeight);
@@ -561,11 +561,11 @@ public BoardLayersListener(GameManager game) {
       refreshUI();
    }
    
-   public void revealSceneCard(SetLocation set) {
+   public void revealSceneCard(SetLocation set) { // flips scene card
       JLabel card = sceneCardLabels.get(set);
 
       Scene scene = set.getScene();
-      ImageIcon face = new ImageIcon("images/Card/" + scene.getImage());
+      ImageIcon face = new ImageIcon("images/Card/" + scene.getImage()); // replaces back image with scene card
       Image img = face.getImage();
       int scaledWidth = 160; // We can scale this to fit the board
       int scaledHeight = 90; 
@@ -580,7 +580,7 @@ public BoardLayersListener(GameManager game) {
    }
 
    // Removes scene card after wrapup
-   public void removeSceneCard(SetLocation set) {
+   public void removeSceneCard(SetLocation set) { // remove scene card image from board
       JLabel card = sceneCardLabels.get(set);
 
       if (card != null) {
@@ -593,7 +593,7 @@ public BoardLayersListener(GameManager game) {
    }
    
 
-   public void movePlayerToRole(int playerIndex, Player player, Role role) {
+   public void movePlayerToRole(int playerIndex, Player player, Role role) { // moves player dice to role location
 
     JLabel dice = playerDice.get(playerIndex);
 
@@ -610,7 +610,7 @@ public BoardLayersListener(GameManager game) {
       }
     }
 
-    int scaledX = (int)(x * scaleX);
+    int scaledX = (int)(x * scaleX); // scales coordinates for accurate placement
     int scaledY = (int)(y * scaleY);
 
     dice.setLocation(scaledX, scaledY);
@@ -618,7 +618,7 @@ public BoardLayersListener(GameManager game) {
     refreshUI();
    }
 
-   public void updateDiceRank(int playerIndex, int rank) {
+   public void updateDiceRank(int playerIndex, int rank) { // changes dice image to reflect role
       JLabel dice = playerDice.get(playerIndex);
 
       String color = PLAYER_DICE_COLORS[playerIndex];
@@ -630,7 +630,7 @@ public BoardLayersListener(GameManager game) {
       refreshUI();
    }
 
-   public void clearSceneCards() {
+   public void clearSceneCards() { // removes all scene cards
     for (Map.Entry<SetLocation, JLabel> entry : sceneCardLabels.entrySet()) {
         JLabel cardLabel = entry.getValue();
         bPane.remove(cardLabel);
@@ -644,7 +644,7 @@ public BoardLayersListener(GameManager game) {
 
    }
 
-   public void placeShotMarkers(SetLocation set) {
+   public void placeShotMarkers(SetLocation set) { // places shot markers on given set locations
       ImageIcon shotIcon = new ImageIcon("images/shot.png");
 
       int index = 0;
@@ -653,7 +653,7 @@ public BoardLayersListener(GameManager game) {
 
          JLabel marker = new JLabel(shotIcon);
 
-        int scaledX = (int)(shot.getX() * scaleX);
+        int scaledX = (int)(shot.getX() * scaleX); // scales placements
         int scaledY = (int)(shot.getY() * scaleY);
 
         int scaledW = (int)(shotIcon.getIconWidth() * scaleX);
@@ -673,15 +673,15 @@ public BoardLayersListener(GameManager game) {
       
    }
 
-   public void removeShotMarker(SetLocation set) {
+   public void removeShotMarker(SetLocation set) { // remove shotmarker from set
       List<ShotMarkers> shots = set.getShots();
 
       int remaining = set.getShotsRemaining();
 
-      if (remaining < shots.size()) {
-         ShotMarkers shot = shots.get(remaining);
+      if (remaining < shots.size()) { // remove correct shotmarker
+         ShotMarkers shot = shots.get(remaining); 
 
-         JLabel marker = shotMarkerLabels.get(shot);
+         JLabel marker = shotMarkerLabels.get(shot); 
 
          if (marker != null) {
             bPane.remove(marker);
@@ -694,7 +694,7 @@ public BoardLayersListener(GameManager game) {
       refreshUI();
    }
 
-   public void clearShotMarkers() {
+   public void clearShotMarkers() { // clears all shotmarkers
       for (JLabel marker : shotMarkerLabels.values()) {
          bPane.remove(marker);
          
@@ -705,21 +705,21 @@ public BoardLayersListener(GameManager game) {
       refreshUI();
    }
 
-   public void showGameOverScreen(List<Player> sortedPlayers) {
-      disableButton(bMove);
+   public void showGameOverScreen(List<Player> sortedPlayers) { // end game screen
+      disableButton(bMove); // disables all player action buttons
       disableButton(bAct);
       disableButton(bRehearse);
       disableButton(bUpgrade);
       disableButton(bEndTurn);
 
-      clearShotMarkers();
+      clearShotMarkers(); // clears board
       clearSceneCards();
 
       displayMessage("GAME OVER! - Final Scores");
 
       playerTableModel.setRowCount(0);
 
-      for (Player p : sortedPlayers) {
+      for (Player p : sortedPlayers) { // all player final stats
          Object[] row = {
             p.getName(),
             p.getRank(),
@@ -740,11 +740,11 @@ public BoardLayersListener(GameManager game) {
       refreshUI();
    }
 
-   public void displayBonusMessage(String text) {
+   public void displayBonusMessage(String text) { // displays a bonus message below standard message spot
       if (bonusMessageLabel == null) {
          bonusMessageLabel = new JLabel();
          bonusMessageLabel.setForeground(new Color(70, 40, 20));
-         bonusMessageLabel.setFont(new Font("Serif", Font.BOLD, 20));
+         bonusMessageLabel.setFont(new Font("ARIAL", Font.BOLD, 18));
          bPane.add(bonusMessageLabel, UI_LAYER);
       }
 

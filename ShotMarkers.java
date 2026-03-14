@@ -6,7 +6,7 @@ public class ShotMarkers {
     private int h;
     private int w;
 
-    public ShotMarkers(int number, int x, int y, int h, int w) {
+    public ShotMarkers(int number, int x, int y, int h, int w) { // class stores each individual shot marker data (ie what number it is and where it is on board)
         this.shotNumber = number;
         this.x = x;
         this.y = y;

@@ -38,7 +38,7 @@ public class Role {
     public int getW() {
         return w;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -59,9 +59,9 @@ public class Role {
         if(player != null && isAvailable()) {
             occupiedBy = player;
             player.setRole(this); // passes this object data to player
-            System.out.println(player.getName() + " got the role " + name + "!");
+            //System.out.println(player.getName() + " got the role " + name + "!");
         } else {
-            System.out.println("This role is not available. " + player.getName() + " currently has it.");
+            //System.out.println("This role is not available. " + player.getName() + " currently has it.");
         }
     }
 

@@ -56,9 +56,6 @@ public class SetLocation extends Location {
     public void removeShot() {
         if(shotsRemaining > 0) { // deincrements shots remaining as long as greater than 0
             shotsRemaining--;
-            if(shotsRemaining == 0) { // ends scene if no shots remainng
-                wrapScene();
-            }
         }
     }
     public boolean isSceneComplete() { 

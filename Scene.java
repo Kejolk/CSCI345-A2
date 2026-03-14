@@ -56,6 +56,6 @@ public class Scene {
 
     public void reveal() { // reveals scene 
         isRevealed = true;
-        System.out.println("Scene revealed: " + title);
+        //System.out.println("Scene revealed: " + title);
     }
 }

@@ -52,7 +52,7 @@ public class Location {
         return scene;
     }
 
-    public void addAdjacentLocation(Location location) { // addsadjacent locations to this locations list
+    public void addAdjacentLocation(Location location) { // adds adjacent locations to this locations list
         if(location != null && !adjacentLocations.contains(location)) {
             adjacentLocations.add(location);
         }
